@@ -96,7 +96,6 @@ function ENT:OnSpawn( ID, hitEntity )
 	self.health = blockType.health
 	
 	self.stable = true
-	self:SetStability( 1.0 )
 	self:SetUpdateStability( true )
 	
 	if ( !GetCSConVarB( "minecraft_disablesounds", self.Owner ) ) then

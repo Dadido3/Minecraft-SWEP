@@ -298,7 +298,6 @@ function SWEP:DrawWorldModel()
 	--end
 end
 
-
 --********************************--
 --  	VM and WM update logic    --
 --********************************--
@@ -345,9 +344,6 @@ function SWEP:ViewmodelCheck()
 	m_iLastBlockSkin = GetCSConVarI( "minecraft_blockskin", self:GetOwner() )
 end
 
-
-
-
 --********************************--
 --   	    	Reload  		  --
 --********************************--
@@ -363,13 +359,13 @@ function SWEP:Reload()
 	
 	--singleplayer
 	if (SERVER) then
-	if (self:GetOwner():IsListenServerHost()) then
-		if (!m_bMenuCheck) then
-			self:GetOwner():ConCommand("mc_menu");
-			m_bMenuCheck = true
-			timer.Simple( 1, function() m_bMenuCheck = false end )
+		if (self:GetOwner():IsListenServerHost()) then
+			if (!m_bMenuCheck) then
+				self:GetOwner():ConCommand("mc_menu");
+				m_bMenuCheck = true
+				timer.Simple( 1, function() m_bMenuCheck = false end )
+			end
 		end
-	end
 	end
 end
 
@@ -538,10 +534,8 @@ end
 
 --idk where else to put this
 function SWEP:ShouldDropOnDie()
-	return false
+	return MC.shouldDropOnDie
 end
-
-
 
 --********************************--
 --   Deploy / Holster / Remove    --
@@ -596,40 +590,57 @@ function SWEP:Initialize()
 	end
 end
 
-
-
 --************************************--
 -- MCSecondaryAttack (creates blocks) --
 --************************************--
 
 function SWEP:MCSecondaryAttack()
-	--check if the block is allowed
-	if (SERVER) then
-		if ( isBlockAllowed(  GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) == false ) then
+	-- Check if the block is allowed
+	if SERVER then
+		if !isBlockAllowed(  GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
 			return
 		end
 	end
 
-	--allow server owners to set a max block limit per player
-	if (SERVER) then
-		local blockcount = 0
+	-- Enforce per player and global block limits
+	if SERVER then
+		local playerBlockCount = 0
+		local globalBlockCount = 0
 		for k, v in pairs( ents.GetAll() ) do
-			if ( v:IsValid() ) then
-				if (v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" or v:GetClass() == "mc_tnt" or v:GetClass() == "mc_cake") then
-					if (v:GetPlayer() == self:GetOwner()) then
-						blockcount = blockcount + 1
+			if IsValid( v ) then
+				local class = v:GetClass()
+				if class == "minecraft_block" or class == "minecraft_block_waterized" or class == "mc_tnt" or class == "mc_cake") then
+					globalBlockCount = globalBlockCount + 1
+					if v:GetPlayer() == self:GetOwner() then
+						playerBlockCount = playerBlockCount + 1
 					end
 				end
 			end
 		end
-		self:GetOwner():ConCommand("cl_minecraft_blockcount ".. (blockcount+1))
-		if ( blockcount > GetConVar("minecraft_swep_blocklimit"):GetInt() ) then
-			self:GetOwner():ConCommand("say reached the max block limit!")
+		self:GetOwner():ConCommand( "cl_minecraft_blockcount " .. ( playerBlockCount + 1 ) )
+		if playerBlockCount > GetConVar("minecraft_swep_blocklimit"):GetInt() or playerBlockCount > MC.playerBlockLimit then
+			self:GetOwner():PrintMessage( HUD_PRINTCENTER, MC.strings.reachedPlayerBlockLimit )
+			return
+		end
+		if globalBlockCount > MC.globalBlockLimit then
+			self:GetOwner():PrintMessage( HUD_PRINTCENTER, MC.strings.reachedGlobalBlockLimit )
 			return
 		end
 	end
 	
-	--get eye trace
+	-- Get eye trace
+	local trace = self.Owner:GetEyeTrace()
+	local target = trace.Entity
+	local distvec = trace.HitPos - self.Owner:GetShootPos()
+	local distance = distvec:Length()
+	if !IsValid( target ) then return end
+	local targetClass = target:GetClass()
+	
+	
+	
+	
+	
+	-- Get eye trace
 	local zpos = 0
 	local tr = self:GetOwner():GetEyeTrace()
 	local startpos = self:GetOwner():GetShootPos()
@@ -641,7 +652,7 @@ function SWEP:MCSecondaryAttack()
 	tracedata.filter = self.Owner
 	
 	--check if the trace hit anything
-	local checktr = util.TraceLine(tracedata)
+	local checktr = util.TraceLine( tracedata )
 	if checktr.HitNonWorld then
 		target = checktr.Entity
 		if ( target ) then 
@@ -660,18 +671,16 @@ function SWEP:MCSecondaryAttack()
 
 	local SpawnPos = tr.HitPos + tr.HitNormal * 20
 	
-	local distvec = tr.HitPos - self.Owner:EyePos()
-	local length = distvec:Length()
+	local distvec = tr.HitPos - self.Owner:GetShootPos()
+	local distance = distvec:Length()
 	
 	--check for distancelimit
-    if ( GetCSConVarB( "minecraft_distancelimit", self:GetOwner() ) == true ) then
-        if ( length > GetCSConVarF( "minecraft_maxspawndist", self:GetOwner() ) ) then
-            isBlock = true
-			if ( ClDebugEnabled() and GetCSConVarB( "minecraft_debug", self:GetOwner() )) 
-				then print("too far!") 
-			end
-        end
-    end
+	if distance > MC.buildDistance then
+		isBlock = true
+		if ( ClDebugEnabled() and GetCSConVarB( "minecraft_debug", self:GetOwner() )) 
+			then print("too far!") 
+		end
+	end
 	
 	if ( isBlock == false and tr.HitWorld == false and ( GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 2 or GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 1) ) then
 		
@@ -754,13 +763,13 @@ function SWEP:MCSecondaryAttack()
 		end
 	end  
 	
+	self.Owner:SetAnimation( PLAYER_ATTACK1 )
 	
 	--*******************************--
 	--	actual block spawning code	 --
 	--*******************************--
 	
 	--only execute on server
-	self.Owner:SetAnimation( PLAYER_ATTACK1 )
 	if (CLIENT) then return end
 	
 	if ( isBlock == false ) then  --pos is ok, block can be created
@@ -850,60 +859,54 @@ end
 --**********************************--
 
 function SWEP:MCPrimaryAttack()
-	--get eye trace
-	local tr = self.Owner:GetEyeTrace()
-	local distvec = tr.HitPos - self.Owner:EyePos()
-	local length = distvec:Length()
-	if ( !tr.Entity:IsValid() ) then return end
+	-- Get eye trace
+	local trace = self.Owner:GetEyeTrace()
+	local target = trace.Entity
+	local distvec = trace.HitPos - self.Owner:GetShootPos()
+	local distance = distvec:Length()
+	if !IsValid( target ) then return end
+	local targetClass = target:GetClass()
 	
-	--only delete minecraft blocks?
-	if ( GetCSConVarB( "minecraft_deletemconly", self:GetOwner() ) == true and !( tr.Entity:GetClass() == "minecraft_block"
-																			or tr.Entity:GetClass() == "minecraft_block_waterized"
-																			or tr.Entity:GetClass() == "mc_cake"
-																			or tr.Entity:GetClass() == "mc_tnt" ) ) then return end
-
-	--handle distancelimit, particles and deletion
-	if ( GetCSConVarB( "minecraft_distancelimit", self:GetOwner() ) == false or length < GetCSConVarF( "minecraft_maxspawndist", self:GetOwner() )) then
-		if tr.HitNonWorld then
-			target = tr.Entity  
-			if (target) then
-				self:ShootEffects( self )
-
-				--particle effect
-				--[[
-				local effectdata = EffectData()
-				effectdata:SetOrigin( target:GetPos() )
-				effectdata:SetNormal( tr.HitNormal )
-				effectdata:SetMagnitude( 8 )
-				effectdata:SetScale( 1 )
-				effectdata:SetRadius( 16 )
-				util.Effect( "GlassImpact", effectdata )
-				--]]
-			end
-		end
-
-		-- The rest is only done on the server
-		if (!SERVER) then return end
-	 
-		local trace = self.Owner:GetEyeTrace();
-		if( not trace.HitWorld ) then -- if you hit an entity
-			if (tr.Entity:GetClass() == "minecraft_block" or tr.Entity:GetClass() == "mc_tnt" or tr.Entity:GetClass() == "mc_cake" or tr.Entity:GetClass() == "minecraft_block_waterized") then
-				trace.Entity.health = -2; --change -2 to -1 to disable particle effects and sounds on block destroy
-				if ( game.SinglePlayer() or tr.Entity:GetPlayer() == self:GetOwner()) then
-					--this is a minecraft block and we own it
-					if ( tr.Entity:GetClass() == "minecraft_block" ) then
-						trace.Entity:RemoveSpecial()
-					else
-						trace.Entity:Remove()
-					end
-					self:AttackAnim()
-					self:GetOwner():ConCommand("cl_minecraft_blockcount "..(GetCSConVarI( "cl_minecraft_blockcount", self:GetOwner() ) - 1))
+	-- Check distance
+	if distance > MC.deleteDistance then return end
+	
+	-- Particles
+	if trace.HitNonWorld then
+		self:ShootEffects( self )
+		
+		--particle effect
+		--[[
+		local effectdata = EffectData()
+		effectdata:SetOrigin( target:GetPos() )
+		effectdata:SetNormal( trace.HitNormal )
+		effectdata:SetMagnitude( 8 )
+		effectdata:SetScale( 1 )
+		effectdata:SetRadius( 16 )
+		util.Effect( "GlassImpact", effectdata )
+		--]]
+	end
+	
+	-- The rest is only done on the server
+	if !SERVER then return end
+	
+	-- Deletion
+	if trace.HitNonWorld then -- if you hit an entity
+		if targetClass == "minecraft_block" or targetClass == "mc_tnt" or targetClass == "mc_cake" or targetClass == "minecraft_block_waterized" then
+			target.health = -2 --change -2 to -1 to disable particle effects and sounds on block destroy
+			if target:GetPlayer() == self:GetOwner() then
+				--this is a minecraft block and we own it
+				if targetClass == "minecraft_block" then
+					target:RemoveSpecial()
+				else
+					target:Remove()
 				end
-			else
-				--any entity
 				self:AttackAnim()
-				trace.Entity:Remove()
+				self:GetOwner():ConCommand("cl_minecraft_blockcount "..(GetCSConVarI( "cl_minecraft_blockcount", self:GetOwner() ) - 1))
 			end
+		elseif MC.onlyDeleteMinecraftBlocks == false then
+			--any entity
+			self:AttackAnim()
+			target:Remove()
 		end
 	end
 end
@@ -1087,12 +1090,12 @@ end
 --check if block is allowed (used for multiplayer only)
 function isBlockAllowed( ID )
 	local cvarstring = GetConVar( "minecraft_swep_blacklist" ):GetString()
-	if (string.len( cvarstring ) <= 0) then
+	if string.len( cvarstring ) <= 0 then
 		return true
 	end
 	local blacklist = string.Explode( ",", cvarstring )
 	for i,c in ipairs( blacklist ) do
-		if ( blacklist[i] == tostring(ID) ) then
+		if blacklist[i] == tostring(ID) then
 			return false
 		end
 	end

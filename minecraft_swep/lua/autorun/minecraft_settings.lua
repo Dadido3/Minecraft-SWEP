@@ -1,17 +1,25 @@
 MC = {}
 
+-- #### Strings ####
+MC.strings = {}
+MC.strings.reachedPlayerBlockLimit =	"You have reached your block limit!"
+MC.strings.reachedGlobalBlockLimit =	"You have reached the global block limit!"
+
 -- #### Settings ####
-MC.healthMul = 1.0			-- Global health multiplier for all blocks
-MC.buildDistance = 140		-- Distance where blocks can be placed
-MC.deleteDistance = 130		-- Distance where blocks can be deleted
-MC.globalLimit = 4096		-- Global block limit
-MC.playerLimit = 500		-- Block limit per player
+MC.healthMul = 1.0				-- Global health multiplier for all blocks
+MC.buildDistance = 140			-- Distance where blocks can be placed
+MC.deleteDistance = 130			-- Distance where blocks can be deleted
+MC.globalBlockLimit = 2048		-- Global block limit
+MC.playerBlockLimit = 200		-- Block limit per player
+MC.shouldDropOnDie = false		-- Player will drop SWEP on death
+
+MC.onlyDeleteMinecraftBlocks = true		-- Only delete minecraft blocks, doh
 
 -- #### BlockTypes ####
 
 -- Stability settings
 local bondToWorld = { 0.0, 10.0, 1.0 } -- Strength of the connection from the block to the world. Vector defined as { Top, Bottom, Sideways }
-local bondReduction = { 2.0, 1.0, 1.5 } -- Reduction of the strength of the connection from a block to a block. Vector defined as { Top, Bottom, Sideways }
+local bondReduction = { 2.0, 0.5, 1.5 } -- Reduction of the strength of the connection from a block to a block. Vector defined as { Top, Bottom, Sideways }
 
 -- Sound tables
 local soundsGravel 	= { Sound("minecraft/gravel1.wav"), Sound("minecraft/gravel2.wav"), Sound("minecraft/gravel3.wav"), Sound("minecraft/gravel4.wav") }
@@ -28,7 +36,7 @@ local matGrass		= { name = "Grass",		baseHealth = 100,	soundTable = soundsGrass 
 local matStone		= { name = "Stone",		baseHealth = 400,	soundTable = soundsStone }
 local matWood		= { name = "Wood",		baseHealth = 200,	soundTable = soundsWood }
 local matMetal		= { name = "Metal",		baseHealth = 800,	soundTable = soundsStone }
-local matSnow		= { name = "Snow",		baseHealth = 50,	soundTable = soundsSnow,	bondReduction = { 10.0, 1.0, 10.0 } }
+local matSnow		= { name = "Snow",		baseHealth = 50,	soundTable = soundsSnow,	bondReduction = { 5.0, 1.0, 5.0 } }
 local matIce		= { name = "Ice",		baseHealth = 50,	soundTable = soundsStone,	transparent = true }
 local matWater		= { name = "Water",		baseHealth = -1,	soundTable = soundsStone,	transparent = true }
 local matLava		= { name = "Lava",		baseHealth = -1,	soundTable = soundsStone }
@@ -41,13 +49,13 @@ local matSponge		= { name = "Sponge",	baseHealth = 50,	soundTable = soundsCloth 
 local matOrganic	= { name = "Organic",	baseHealth = 50,	soundTable = soundsGrass }
 local matFire		= { name = "Fire",		baseHealth = -1,	soundTable = soundsCloth }
 
--- Classes of blocks (Geometries like stairs, slabs)
-local classCube		= { name = "Cube" }
-local classCubeDir	= { name = "Cube with direction",	healthMul = 1.0,	autoRotate = true }
-local classSlab		= { name = "Slab",					healthMul = 0.5 }
-local classStairs	= { name = "Stairs",				healthMul = 1.0,	autoRotate = true }
-local classLiquid	= { name = "Liquid",														noCollide = true }
-local classItemBlock= { name = "Item",					healthMul = 0.2,	autoRotate = true,	noCollide = true }
+-- Classes of blocks (Geometries like stairs, slabs) TODO: Rename to geom for geometry or something similar
+local classCube			= { name = "Cube" }
+local classCubeDir		= { name = "Cube with direction",	healthMul = 1.0,	autoRotate = true }
+local classSlab			= { name = "Slab",					healthMul = 0.5 }
+local classStairs		= { name = "Stairs",				healthMul = 1.0,	autoRotate = true }
+local classLiquid		= { name = "Liquid",														noCollide = true }
+local classItemBlock	= { name = "Item",					healthMul = 0.2,	autoRotate = true,	noCollide = true }
 
 MC.BlockTypes = {}
 

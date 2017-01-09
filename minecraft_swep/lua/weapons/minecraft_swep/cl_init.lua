@@ -47,9 +47,9 @@ function PANEL:SetParent( parent )
 end
 
 
-/*---------------------------------------------------------
-   Name: Init
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: Init
+-----------------------------------------------------------
 function PANEL:AddModel( strModel, iSkin, blockID )
 	iSkin = iSkin or 0
 	
@@ -88,9 +88,9 @@ function PANEL:AddBlock()
 
 end
 
-/*---------------------------------------------------------
-   Name: DeleteIcon
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: DeleteIcon
+-----------------------------------------------------------
 function PANEL:DeleteIcon( category, icon, model )
 	self.PropList:RemoveLine( icon.LineID )
 		
@@ -103,9 +103,9 @@ function PANEL:DeleteIcon( category, icon, model )
 end
 
 
-/*---------------------------------------------------------
-   Name: OnRowClick
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: OnRowClick
+-----------------------------------------------------------
 function PANEL:OnRowClick(ID, skin)
 	surface.PlaySound( "ui/buttonclickrelease.wav")
 
@@ -124,9 +124,9 @@ end
 
 
 
-/*---------------------------------------------------------
-   Name: SetViewMode
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: SetViewMode
+-----------------------------------------------------------
 function PANEL:SetViewMode( strName )
 	self.IconList:SetVisible( false )
 	self.PropList:SetVisible( false )
@@ -140,9 +140,9 @@ function PANEL:SetViewMode( strName )
 	end
 end
 
-/*---------------------------------------------------------
-   Name: PerformLayout
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: PerformLayout
+-----------------------------------------------------------
 function PANEL:PerformLayout()
 	self.IconList:StretchToParent( 0, 0, 0, 0 )
 	self.IconList:InvalidateLayout()
@@ -151,9 +151,9 @@ function PANEL:PerformLayout()
 	self.PropList:InvalidateLayout()
 end
 
-/*---------------------------------------------------------
-   Name: RebuildAll
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: RebuildAll
+-----------------------------------------------------------
 function PANEL:RebuildAll( proppanel )
 	local items = self.IconList:GetItems()
 	for k, v in pairs( items ) do
@@ -163,18 +163,18 @@ function PANEL:RebuildAll( proppanel )
 	end
 end
 
-/*---------------------------------------------------------
-   Name: GetCount
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: GetCount
+-----------------------------------------------------------
 function PANEL:GetCount()
 	local items = self.IconList:GetItems()
 	return #items
 end
 
 
-/*---------------------------------------------------------
-   Name: SetIconSize
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: SetIconSize
+-----------------------------------------------------------
 function PANEL:SetIconSize( iconSize )
 	self.m_iIconSize = iconSize
 	
@@ -190,9 +190,9 @@ function PANEL:SetIconSize( iconSize )
 	self.IconList:InvalidateLayout()
 end
 
-/*---------------------------------------------------------
-   Name: SetIconSize
----------------------------------------------------------*/
+-----------------------------------------------------------
+-- Name: SetIconSize
+-----------------------------------------------------------
 function PANEL:Clear()
 	self.IconList:Clear()
 	self.PropList:Clear()
@@ -220,17 +220,17 @@ local mc_left,mc_right,mc_up_mc_down
 local mc_removemenu
 
 function openBlockMenu( ply, cmd, args )
-	--only create the menu once
+	-- Only create the menu once
 	if (mc_frame == nil or mc_frame == NULL or mc_blockPanel == NULL or mc_blockPanel == nil) then
 		createBlockMenu(ply,cmd,args)
 	end
 
-	--set block counts
+	-- Set block counts
     local blockcount = GetCSConVarI( "cl_minecraft_blockcount", ply )
 	local crashcount = 0
 	for k, v in pairs( ents.GetAll() ) do
-        if ( v:IsValid() ) then
-			if (v:GetClass() != "minecraft_block" and v:GetClass() != "minecraft_block_waterized" and v:GetClass() != "mc_tnt" and v:GetClass() != "mc_cake") then
+        if IsValid( v ) then
+			if v:GetClass() != "minecraft_block" and v:GetClass() != "minecraft_block_waterized" and v:GetClass() != "mc_tnt" and v:GetClass() != "mc_cake") then
 				crashcount = crashcount + 1
 			end
         end  
@@ -241,7 +241,7 @@ function openBlockMenu( ply, cmd, args )
 	mc_crashCounter:SetText( "Would crash at "..crashcount.."." )
 	mc_crashCounter:SizeToContents()
 
-	--update the checkbox with the current ConVar value
+	-- Update the checkbox with the current ConVar value
 	if ( GetConVar( "minecraft_blockrotation_force" ):GetInt() >= 1 ) then
 		mc_rotationLabel1:SetValue( 1 )
 	end
@@ -250,7 +250,7 @@ function openBlockMenu( ply, cmd, args )
 	end
 	mc_rotationLabel1:SizeToContents()	
 	
-	--set size
+	-- Set size
 	if ( GetConVar( "minecraft_menu_huge" ):GetBool() ) then
 		mc_frame:SetSize( ScrW()-100, ScrH()-(20*2) )
 	else
@@ -262,12 +262,12 @@ function openBlockMenu( ply, cmd, args )
 	end
 	mc_blockPanel:SetSize(mc_frame:GetSize()-165, ScrH()-(20*2)-25-5)
 	
-	--center all right ui elements
+	-- Center all right ui elements
 	local w,h = mc_frame:GetSize()
 	local bw = mc_blockPanel:GetSize()
 	local bm = bw + (w-bw)/2
 	
-	--center
+	-- Center
 	mc_rotationLabel1:SetPos( bm-(mc_rotationLabel1:GetSize()/2), 350 )
 	mc_rotationLabel2:SetPos( mc_rotationLabel1:GetPos()+2, 370 )
 	mc_options:SetPos( bm-(80/2), 270 )
@@ -279,12 +279,12 @@ function openBlockMenu( ply, cmd, args )
 	mc_crashCounter:SetPos( bm-(mc_crashCounter:GetSize()/2), 164 )
 	mc_removemenu:SetPos( bm-(mc_removemenu:GetSize()/2), 100 )
 
-	--open
+	-- Open
 	mc_frame:SetVisible( true )
 	mc_frame:Center()
 	mc_frame:MakePopup()
 	
-	--restore mouse position
+	-- Restore mouse position
 	if (mbackup.x != -1 and GetConVar("minecraft_menu_savemousepos"):GetBool()) then
 		gui.SetMousePos(mbackup.x,mbackup.y)
 	end
@@ -317,14 +317,16 @@ function createBlockMenu( ply, cmd, args )
 	mc_blockPanel:PerformLayout() 
 	--add every block in the global table 'BlockTypes'
 	for k, v in pairs( MC.BlockTypes ) do
-		mc_blockPanel:AddModel( v.model, 0, k )
-		
-		local test = util.GetModelInfo( v.model )
+		if isBlockAllowed( ID ) then
+			mc_blockPanel:AddModel( v.model, 0, k )
+			
+			local modelInfo = util.GetModelInfo( v.model )
 
-		local skinCount = test["SkinCount"]
-		if (test["SkinCount"] > 1) then
-			for skn = 1, test["SkinCount"]-1, 1 do
-				mc_blockPanel:AddModel( v.model, skn, k )
+			local skinCount = modelInfo.SkinCount
+			if (skinCount > 1) then
+				for skn = 1, skinCount-1, 1 do
+					mc_blockPanel:AddModel( v.model, skn, k )
+				end
 			end
 		end
 	end
@@ -332,7 +334,7 @@ function createBlockMenu( ply, cmd, args )
 	--center all right ui elements
 	local w,h = mc_frame:GetSize()
 	local bw = mc_blockPanel:GetSize()
-	local bm = bw + (w-bw)/2
+	local bm = bw + ( w - bw ) / 2
 	
 	--create options menu button
 	mc_options = vgui.Create( "DButton", mc_frame )
@@ -609,9 +611,6 @@ function optionspanel()
     options:MakePopup()
 end
 
-
-
-
 --add the concommands
 concommand.Add("mc_menu", openBlockMenu )
 concommand.Add("mc_options", optionspanel )
@@ -624,7 +623,7 @@ CreateClientConVar( "minecraft_menu_savemousepos", "1", true, true )
 CreateClientConVar( "minecraft_menu_huge", "0", false, true )
 CreateClientConVar( "minecraft_debug", "0", false, true )
 
-CreateClientConVar( "minecraft_maxspawndist", "300", true, true )
+--CreateClientConVar( "minecraft_maxspawndist", "300", true, true )
 CreateClientConVar( "minecraft_lavaigniteplayer", "0", true, true )
 CreateClientConVar( "minecraft_lavaigniteblocks", "0", true, true )
 CreateClientConVar( "minecraft_deletemconly", "1", true, true )
@@ -641,7 +640,7 @@ cvars.AddChangeCallback( "minecraft_blocktype", blockTypeCallback )
 CreateClientConVar( "minecraft_blockskin", "0", true, true )
 
 CreateClientConVar( "minecraft_disablesounds", "0", true, true )
-CreateClientConVar( "minecraft_distancelimit", "1", true, true )
+--CreateClientConVar( "minecraft_distancelimit", "1", true, true )
 CreateClientConVar( "minecraft_blockhealth", "101", true, true )
 CreateClientConVar( "minecraft_blockhealth_auto", "1", true, true )
 

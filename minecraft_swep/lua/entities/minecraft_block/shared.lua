@@ -174,7 +174,7 @@ function ENT:CalculateStability( top, bottom, front, back, left, right )
 	
 	-- Check if the given direction is connected to the world
 	if bottom == NULL and blockType.bondToWorld[2] > 0 then
-		stability = blockType.bondToWorld[2]
+		stability = math.max( stability, blockType.bondToWorld[2] )
 	end
 	if blockType.bondToWorld[3] > 0 then
 		for k, v in pairs( side ) do
@@ -191,15 +191,15 @@ function ENT:CalculateStability( top, bottom, front, back, left, right )
 	if IsValid( bottom ) and bottom.stable then
 		stability = math.max( stability, bottom:GetStability() - blockType.bondReduction[2] )
 	end
-	-- Check if the top is connected to another block
-	if IsValid( top ) and top.stable then
-		stability = math.max( stability, top:GetStability() - blockType.bondReduction[1] )
-	end
 	-- Check if the side is connected to another block
 	for k, v in pairs( side ) do
 		if IsValid( v ) and v.stable then
 			stability = math.max( stability, v:GetStability() - blockType.bondReduction[3] )
 		end
+	end
+	-- Check if the top is connected to another block
+	if IsValid( top ) and top.stable then
+		stability = math.max( stability, top:GetStability() - blockType.bondReduction[1] )
 	end
 	
 	return stability
@@ -247,7 +247,7 @@ function ENT:Think( )
 	end
 	
 	-- #### DoUpdate stuff ####
-	if (self:GetDoUpdate() == true) then
+	if self:GetDoUpdate() then
 		local ID = self:GetBlockID()
 		--[[
 		if (SERVER) then
@@ -384,7 +384,7 @@ function ENT:BlockInit( ID , hitEntity )
 		onBlock = true
 		
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("onBlock = true!") end
+			if (GetConVar("minecraft_debug"):GetBool() == 2) then print("onBlock = true!") end
 		end
 	end
 
@@ -394,36 +394,36 @@ function ENT:BlockInit( ID , hitEntity )
 	local tr = self.Owner:GetEyeTrace()
 	local hitpos = tr.HitPos - self.Owner:GetPos()
 	if (CLIENT) then
-	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("hitpos.x = ".. tostring(hitpos.x) .. " hitpos.y = ".. tostring(hitpos.y)) end
+		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("hitpos.x = ".. tostring(hitpos.x) .. " hitpos.y = ".. tostring(hitpos.y)) end
 	end
 	local startpos = tr.StartPos - self.Owner:GetPos()
 	local rotpoint = RotatePoint2D( hitpos, startpos, 45 ) --rotate the "compass rose" by 45 degrees
 	local thevector = rotpoint - startpos
 	if (CLIENT) then
-	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posx = " .. tostring(thevector.x)) end
-	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posy = " .. tostring(thevector.y)) end
+		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posx = " .. tostring(thevector.x)) end
+		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posy = " .. tostring(thevector.y)) end
 	end
 	if (thevector.x < 0 and thevector.y > 0) then
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> North") end
+			if (GetConVar("minecraft_debug"):GetBool()) then print("player -> North") end
 		end
 		viewdir = 1
 	end
 	if (thevector.x > 0 and thevector.y > 0) then
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> East") end
+			if (GetConVar("minecraft_debug"):GetBool()) then print("player -> East") end
 		end
 		viewdir = 2
 	end
 	if (thevector.x > 0 and thevector.y < 0) then
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> South") end
+			if (GetConVar("minecraft_debug"):GetBool()) then print("player -> South") end
 		end
 		viewdir = 3
 	end
 	if (thevector.x < 0 and thevector.y < 0) then
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> West") end
+			if (GetConVar("minecraft_debug"):GetBool()) then print("player -> West") end
 		end
 		viewdir = 4
 	end
@@ -433,8 +433,8 @@ function ENT:BlockInit( ID , hitEntity )
 	local onSide = -1
 	if (onBlock == true) then
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("self:GetPos() -> x = " .. tostring(self:GetPos().x) .. " ; y = " .. tostring(self:GetPos().y) .. " ; z = " .. tostring(self:GetPos().z)) end
-		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("hitE:GetPos() -> x = " .. tostring(hitEntity:GetPos().x) .. " ; y = " .. tostring(hitEntity:GetPos().y) .. " ; z = " .. tostring(hitEntity:GetPos().z)) end
+			if (GetConVar("minecraft_debug"):GetBool() == 2) then print("self:GetPos() -> x = " .. tostring(self:GetPos().x) .. " ; y = " .. tostring(self:GetPos().y) .. " ; z = " .. tostring(self:GetPos().z)) end
+			if (GetConVar("minecraft_debug"):GetBool() == 2) then print("hitE:GetPos() -> x = " .. tostring(hitEntity:GetPos().x) .. " ; y = " .. tostring(hitEntity:GetPos().y) .. " ; z = " .. tostring(hitEntity:GetPos().z)) end
 		end
 		local selfX = self:GetPos().x;
 		local selfY = self:GetPos().y;
@@ -445,37 +445,37 @@ function ENT:BlockInit( ID , hitEntity )
 		if (selfX == hitX and selfY == hitY and selfZ > hitZ) then
 			onSide = 1;
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("top") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("top") end
 			end
 		end
 		if (selfX == hitX and selfY == hitY and selfZ < hitZ) then
 			onSide = 2;
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("bottom") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("bottom") end
 			end
 		end
 		if (selfX > hitX and selfY == hitY) then
 			onSide = 3
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("front") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("front") end
 			end
 		end
 		if (selfX < hitX and selfY == hitY) then
 			onSide = 4
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("back") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("back") end
 			end
 		end
 		if (selfX == hitX and selfY < hitY) then
 			onSide = 5
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("left") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("left") end
 			end
 		end
 		if (selfX == hitX and selfY > hitY) then
 			onSide = 6
 			if (CLIENT) then
-			if (GetConVar("minecraft_debug"):GetBool()) then print("right") end
+				if (GetConVar("minecraft_debug"):GetBool()) then print("right") end
 			end
 		end
 	end
@@ -644,7 +644,7 @@ function ENT:BlockInit( ID , hitEntity )
 		local thevector = self:GetPos() - self.Owner:GetPos()
 		local angle = GetAngleBetweenVectors( base, thevector )
 		if (CLIENT) then
-		if (GetConVar("minecraft_debug"):GetBool()) then print("angle = " .. tostring(angle)) end
+			if (GetConVar("minecraft_debug"):GetBool()) then print("angle = " .. tostring(angle)) end
 		end
 		self:SetAngles( Angle( 0, angle, 0) )
 	end
