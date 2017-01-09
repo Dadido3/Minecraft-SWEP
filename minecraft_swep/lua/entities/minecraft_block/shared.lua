@@ -1,7 +1,7 @@
-//********************************//
-//     Minecraft Block Entity     //
-//			 (c) McKay			  //
-//********************************//
+--********************************--
+--     Minecraft Block Entity     --
+--			 (c) McKay			  --
+--********************************--
 
 ENT.Type 			= "anim"
 ENT.Base 			= "base_anim"
@@ -11,41 +11,30 @@ ENT.blockID			= 0
 
 blockNewPanel = 1
 
-//Setup datatable hook
+--Setup datatable hook
 function ENT:SetupDataTables()
-    self:DTVar( "Int", 0, "blockID" )
-	self:DTVar( "Int", 1, "rotation" )
-	self:DTVar( "Bool", 1, "doUpdate" )
+	self:NetworkVar( "Int", 0, "BlockID" )
+	self:NetworkVar( "Int", 1, "Rotation" )
+	self:NetworkVar( "Bool", 0, "DoUpdate" )
+	
+	self:NetworkVar( "Bool", 1, "UpdateStability" )
+	self:NetworkVar( "Float", 0, "Stability" )
 end
 
-//Accessor Funcs
-function ENT:GetBlockID( )
-    return self.blockID
-end
-
-//*******************************************
-//	CheckPos - check for block overlapping
-//*******************************************
-
-//will ignore block placement collision for blocks like torches, paintings, tripwires, items etc.
-function ignoreBlockCollision( ID )
-	if (ID != 66 && ID != 67 && ID != 68 && ID != 72 && ID != 82 && ID != 98 && ID != 109 && !(ID >= 110 && ID <= 116) && !(ID >= 135 && ID <= 171)) then
-		return true
-	else
-		return false
-	end
-end
+--*******************************************
+--	CheckPos - check for block overlapping
+--*******************************************
 
 function ENT:CheckPos( ID )
-	if (ignoreBlockCollision(ID)) then //not for torches, levers, ladders, vines, buttons, tripwires
+	if MC.BlockTypes[ID].noCollide == false then --not for torches, levers, ladders, vines, buttons, tripwires
 		local bounds = 16;
 		local pos = self:GetPos();
-		pos.z = pos.z + 18.25; //center
+		pos.z = pos.z + 18.25; --center
 		for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-			if ( v:IsValid() && v != self ) then
+			if ( v:IsValid() and v != self ) then
 				if ( v:GetClass() == "minecraft_block") then
 					if (CLIENT) then
-					if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self.dt.blockID) .. "] would overlap with ID = " .. tostring(v.dt.blockID)) end
+					if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(v:GetBlockID()) .. "] would overlap with ID = " .. tostring(v:GetBlockID())) end
 					end
 					return false;
 				end
@@ -65,17 +54,17 @@ function ENT:CheckPos( ID )
 	return true
 end
 
-//*******************************************
-//	GetNearbyBlock
-//*******************************************
+--*******************************************
+--	GetNearbyBlock
+--*******************************************
 
 function ENT:GetNearbyBlock( onSide )
-	if ( onSide <= 0 || onSide > 6) then print("epic fail") return end
-	//1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
+	if ( onSide <= 0 or onSide > 6) then print("epic fail") return end
+	--1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
 	
-	local bounds = 15; //15
+	local bounds = 15; --15
 	local pos = self:GetPos();
-	pos.z = pos.z + 18.25; //center
+	pos.z = pos.z + 18.25; --center
 	if (onSide == 1) then
 		pos.z = pos.z + 36.5
 	end
@@ -95,18 +84,18 @@ function ENT:GetNearbyBlock( onSide )
 		pos.y = pos.y + 36.5;
 	end
 	for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-		if ( v:IsValid() && v != self ) then
-			if ( v:GetClass() == "minecraft_block" || v:GetClass() == "minecraft_block_waterized") then
-				//if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self.dt.blockID) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
+		if ( v:IsValid() and v != self ) then
+			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized") then
+				--if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self:self.GetBlockID()) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
 				return v;
 			end
 		end
 	end
-	//test tracer for detecting world geometry
-	//local tracelength = self:GetPlayer():GetInfoNum("minecraft_water_worldcollision_trl",12.5);
+	--test tracer for detecting world geometry
+	--local tracelength = self:GetPlayer():GetInfoNum("minecraft_water_worldcollision_trl",12.5);
 	local tracelength = 12.5
 	local endpos = pos;
-	endpos.z = endpos.z - tracelength; //i have to use fixed values again fffffffuuuuuuuUUUUUUUUUUUU; why is 18.25 exactly 1 block too high??!
+	endpos.z = endpos.z - tracelength; --i have to use fixed values again fffffffuuuuuuuUUUUUUUUUUUU; why is 18.25 exactly 1 block too high??!
 	local tracedata = {}
 	tracedata.start = pos
 	tracedata.endpos = endpos
@@ -117,7 +106,7 @@ function ENT:GetNearbyBlock( onSide )
 	else
 		return nil
 	end
-	//and check all 4 sides
+	--and check all 4 sides
 	endpos = pos;
 	endpos.x = endpos.x - tracelength;
 	tracedata.endpos = endpos;
@@ -159,38 +148,122 @@ function ENT:GetNearbyBlock( onSide )
 	end
 end
 
-//*******************************************
-//					Think 
-//*******************************************
+--*******************************************
+--					Think 
+--*******************************************
 
-//all blockIDs in here will be ignored by grass blocks (won't change to dirt)
-function ignoreGrassTopBlock( ID2 )
-	if (ID2 != 55 && ID2 != 70 && ID2 != 56 && ID2 != 17 && ID2 != 82) && ( !(ID2 >= 59 && ID2 <= 68) && !(ID2 >= 72 && ID2 <= 76) && !(ID2 >= 95 && ID2 <= 106) && !(ID2 >= 87 && ID2 <= 91) && !(ID2 >= 109)) then
-		return true
-	else 
-		return false
+--all blockIDs in here will be ignored by grass blocks (won't change to dirt)
+function ignoreGrassTopBlock( ID )
+	
+	return MC.BlockTypes[ID].grasGrowsBelow
+	
+	-- Old logic, remove when transferred
+	--if (ID2 != 55 and ID2 != 70 and ID2 != 56 and ID2 != 17 and ID2 != 82) and ( !(ID2 >= 59 and ID2 <= 68) and !(ID2 >= 72 and ID2 <= 76) and !(ID2 >= 95 and ID2 <= 106) and !(ID2 >= 87 and ID2 <= 91) and !(ID2 >= 109)) then
+	--	return true
+	--else 
+	--	return false
+	--end
+end
+
+function ENT:CalculateStability( top, bottom, front, back, left, right )
+	local side = {front, back, left, right}
+	
+	local blockType = MC.BlockTypes[self:GetBlockID()]
+	
+	local stability = -1.0
+	
+	-- Check if the given direction is connected to the world
+	if bottom == NULL and blockType.bondToWorld[2] > 0 then
+		stability = blockType.bondToWorld[2]
 	end
+	if blockType.bondToWorld[3] > 0 then
+		for k, v in pairs( side ) do
+			if v == NULL then
+				stability = math.max( stability, blockType.bondToWorld[3] )
+			end
+		end
+	end
+	if top == NULL and blockType.bondToWorld[1] > 0 then
+		stability = math.max( stability, blockType.bondToWorld[1] )
+	end
+	
+	-- Check if the bottom is connected to another block
+	if IsValid( bottom ) and bottom.stable then
+		stability = math.max( stability, bottom:GetStability() - blockType.bondReduction[2] )
+	end
+	-- Check if the top is connected to another block
+	if IsValid( top ) and top.stable then
+		stability = math.max( stability, top:GetStability() - blockType.bondReduction[1] )
+	end
+	-- Check if the side is connected to another block
+	for k, v in pairs( side ) do
+		if IsValid( v ) and v.stable then
+			stability = math.max( stability, v:GetStability() - blockType.bondReduction[3] )
+		end
+	end
+	
+	return stability
 end
 
 function ENT:Think( )
 	if (CLIENT) then return end
-	if (self:GetNetworkedBool("doUpdate") == true) then
-		local ID = self.dt.blockID;
-		/*
+	
+	-- #### Stability stuff ####
+	if self:GetUpdateStability() and self.stable then
+		self:SetUpdateStability( false )
+		
+		local top		= self:GetNearbyBlock(1)
+		local bottom	= self:GetNearbyBlock(2)
+		local front		= self:GetNearbyBlock(3)
+		local back		= self:GetNearbyBlock(4)
+		local left		= self:GetNearbyBlock(5)
+		local right		= self:GetNearbyBlock(6)
+		
+		local oldStability = self:GetStability()
+		local stability = self:CalculateStability( top, bottom, front, back, left, right )
+		
+		-- If stability changed, update neighbours
+		if oldStability != stability then
+			self:SetStability( stability )
+			
+			if IsValid( top )		then top:SetUpdateStability( true ) end
+			if IsValid( bottom )	then bottom:SetUpdateStability( true ) end
+			if IsValid( front )		then front:SetUpdateStability( true ) end
+			if IsValid( back )		then back:SetUpdateStability( true ) end
+			if IsValid( left )		then left:SetUpdateStability( true ) end
+			if IsValid( right )		then right:SetUpdateStability( true ) end
+			
+			-- Unfreeze entity if unstable
+			if stability <= 0.0 then
+				self.stable = false
+				self:SetModelScale( 0.99 )
+				self:Activate()
+				local phys = self:GetPhysicsObject()
+				phys:EnableMotion( true )
+				phys:ApplyForceCenter( Vector( 0, 0, 0 ) ) -- Prevent entity from being stuck in the sky
+			end
+		end
+		
+	end
+	
+	-- #### DoUpdate stuff ####
+	if (self:GetDoUpdate() == true) then
+		local ID = self:GetBlockID()
+		--[[
 		if (SERVER) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] update... (server)") end
 		else
 			if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] update... (client)") end
 		end
-		*/
+		--]]
 	
-		//intelligent grass blocks
+		--intelligent grass blocks
 		if (ID == 2) then
 			local temp = self:GetNearbyBlock( 1 )
-			if (temp != nil) then //if there is a block on top of me
+			if (temp != nil) then --if there is a block on top of me
 				local ID2 = 0;
-				//if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] detected block with ID = "..tostring(ID2).." on top") end
-				//have to check for waterized blocks manually, because GetBlockID() doesn't seem to work properly
+				--if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] detected block with ID = "..tostring(ID2).." on top") end
+				--have to check for waterized blocks manually, because GetBlockID() doesn't seem to work properly
 				local check = true
 				if (temp:GetClass() == "minecraft_block_waterized") then
 					if (temp:GetNWString("water") == "true") then
@@ -202,36 +275,36 @@ function ENT:Think( )
 					end
 				end
 				if (temp:IsValid()) then
-					//create snowy grass blocks if a snow layer is placed on top
-					if ( ID2 == 56 || ID2 == 17 ) then
+					--create snowy grass blocks if a snow layer is placed on top
+					if ( ID2 == 56 or ID2 == 17 ) then
 						self:SetSkin( 1 );
 					else
-						if ( ignoreGrassTopBlock(ID2) && check) then
+						if ( ignoreGrassTopBlock(ID2) and check) then
 							self:SetModel( "models/MCModelPack/blocks/dirt.mdl" );
-							self.dt.blockID = 1;
+							self:SetBlockID( 1 )
 						
-							if (SERVER) then //don't want this message twice
-								//if (GetConVar("minecraft_debug"):GetBool()) then print("grass will now turn magically into dirt") end
+							if (SERVER) then --don't want this message twice
+								--if (GetConVar("minecraft_debug"):GetBool()) then print("grass will now turn magically into dirt") end
 							end
 						end
 					end
 				end
 			end
 			
-			self:SetNetworkedBool("doUpdate",false);
+			self:SetDoUpdate( false )
 		end
 		
-		//vines spread
-		if (ID == 82 && SERVER && GetCSConVarB( "minecraft_vines_grow", self:GetPlayer() ) && self.spawned ) then
+		--vines spread
+		if (ID == 82 and SERVER and GetCSConVarB( "minecraft_vines_grow", self:GetPlayer() ) and self.spawned ) then
 			if ( GetConVar( "minecraft_swep_enable_water_spread" ):GetBool() ) then
 			if (CurTime() > self.growtime) then
 				self.growtime = CurTime() + GetCSConVarF( "minecraft_vines_growspeed", self:GetPlayer() );
 				
-				//fake position for a very short time to get the correct GetNearbyBlock() results!
+				--fake position for a very short time to get the correct GetNearbyBlock() results!
 				local spos = self:GetPos();
 				local sposbackup = self:GetPos();
 				local check = false
-				//print("p = "..tostring(self:GetAngles().p)..", y = "..tostring(self:GetAngles().y)..", r = "..tostring(self:GetAngles().r))
+				--print("p = "..tostring(self:GetAngles().p)..", y = "..tostring(self:GetAngles().y)..", r = "..tostring(self:GetAngles().r))
 				if (self:GetAngles() == Angle( 0,0,0 ) ) then
 					spos.x = spos.x + 18;
 					check = true
@@ -244,31 +317,31 @@ function ENT:Think( )
 					spos.y = spos.y - 18;
 					check = true
 				end
-				//Gmod seems to alternate between 180 and -180, I have no idea why this happens! (even though ent:SetAngles( self:GetAngles() ) !)
-				//this took me 2 fucking hours to figure out
-				if ( self:GetAngles() == Angle( 0,180,0) || self:GetAngles() == Angle( 0,-180,0) ) then
+				--Gmod seems to alternate between 180 and -180, I have no idea why this happens! (even though ent:SetAngles( self:GetAngles() ) !)
+				--this took me 2 fucking hours to figure out
+				if ( self:GetAngles() == Angle( 0,180,0) or self:GetAngles() == Angle( 0,-180,0) ) then
 					spos.x = spos.x - 18;
 				end
 				
-				//two different checks for any blocks under this one
+				--two different checks for any blocks under this one
 				self:SetPos( spos );
 				local temp = self:GetNearbyBlock( 2 )
 				self:SetPos( sposbackup );
 				local temp2 = self:GetNearbyBlock( 2 )
 				local check2 = true
-				if (temp2 != nil && temp2 != NULL) then
-					if (temp2.dt.blockID == ID) then
+				if (temp2 != nil and temp2 != NULL) then
+					if (temp2:GetBlockID() == ID) then
 						check2 = false
 					end
 				end
 				
-				if (temp == nil && check2) then //if there is no block under me (and also no world geometry)
+				if (temp == nil and check2) then --if there is no block under me (and also no world geometry)
 					local ent = ents.Create( "minecraft_block" )
 					ent:SetAngles( self:GetAngles() )
 					local pos = self:GetPos();
 					pos.z = pos.z - 36.5;
 				
-					//the order of the following functions is important!
+					--the order of the following functions is important!
 					ent:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 					ent:SetKeyValue( "DisableShadows", "1" )
 					ent:SetKeyValue( "targetname", "mcblock" )
@@ -277,27 +350,27 @@ function ENT:Think( )
 					ent:SetPos( pos );
 					ent:SetBlockID( ID )
 					ent:OnSpawn( ID, self )
-					ent:SetNetworkedBool("doUpdate",true)
+					ent:SetDoUpdate( true )
 					ent:Spawn()
 				end
 			
-				self:SetNetworkedBool("doUpdate",false);
+				self:SetDoUpdate( false )
 			end
 			end
 		end
 		
-		//TODO: add more
+		--TODO: add more
 		
-		//HACKHACK: temporary solution to keep blocks with nothing here from thinking
-		if (ID != 82 && ID != 2 && ID != 69) then
-			self:SetNetworkedBool("doUpdate",false);
+		--HACKHACK: temporary solution to keep blocks with nothing here from thinking
+		if (ID != 82 and ID != 2 and ID != 69) then
+			self:SetDoUpdate( false )
 		end
 	end
 end
 
-//***********************************************
-//	BlockInit - special block behaviour on spawn
-//***********************************************
+--***********************************************
+--	BlockInit - special block behaviour on spawn
+--***********************************************
 
 function ENT:BlockInit( ID , hitEntity )
 	if (CLIENT) then
@@ -305,17 +378,18 @@ function ENT:BlockInit( ID , hitEntity )
 	if (GetConVar("minecraft_debug"):GetBool()) then print("tracer hit " .. tostring(hitEntity:GetClass())) end
 	end
 	
-	//are we spawning on another block?
+	--are we spawning on another block?
 	local onBlock = false
-	if (!hitEntity:IsWorld() && hitEntity:GetClass() == "minecraft_block") then
+	if (!hitEntity:IsWorld() and hitEntity:GetClass() == "minecraft_block") then
 		onBlock = true
+		
 		if (CLIENT) then
 		if (GetConVar("minecraft_debug"):GetBool() == 2) then print("onBlock = true!") end
 		end
 	end
 
-	//get the view direction (1 = North, 2 = East, 3 = South, 4 = West)
-	//I hereby declare that North is the direction you are facing in gm_construct on spawn
+	--get the view direction (1 = North, 2 = East, 3 = South, 4 = West)
+	--I hereby declare that North is the direction you are facing in gm_construct on spawn
 	local viewdir = -1
 	local tr = self.Owner:GetEyeTrace()
 	local hitpos = tr.HitPos - self.Owner:GetPos()
@@ -323,39 +397,39 @@ function ENT:BlockInit( ID , hitEntity )
 	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("hitpos.x = ".. tostring(hitpos.x) .. " hitpos.y = ".. tostring(hitpos.y)) end
 	end
 	local startpos = tr.StartPos - self.Owner:GetPos()
-	local rotpoint = RotatePoint2D( hitpos, startpos, 45 ) //rotate the "compass rose" by 45 degrees
+	local rotpoint = RotatePoint2D( hitpos, startpos, 45 ) --rotate the "compass rose" by 45 degrees
 	local thevector = rotpoint - startpos
 	if (CLIENT) then
 	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posx = " .. tostring(thevector.x)) end
 	if (GetConVar("minecraft_debug"):GetBool() == 2) then print("posy = " .. tostring(thevector.y)) end
 	end
-	if (thevector.x < 0 && thevector.y > 0) then
+	if (thevector.x < 0 and thevector.y > 0) then
 		if (CLIENT) then
 		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> North") end
 		end
 		viewdir = 1
 	end
-	if (thevector.x > 0 && thevector.y > 0) then
+	if (thevector.x > 0 and thevector.y > 0) then
 		if (CLIENT) then
 		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> East") end
 		end
 		viewdir = 2
 	end
-	if (thevector.x > 0 && thevector.y < 0) then
+	if (thevector.x > 0 and thevector.y < 0) then
 		if (CLIENT) then
 		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> South") end
 		end
 		viewdir = 3
 	end
-	if (thevector.x < 0 && thevector.y < 0) then
+	if (thevector.x < 0 and thevector.y < 0) then
 		if (CLIENT) then
 		if (GetConVar("minecraft_debug"):GetBool()) then print("player -> West") end
 		end
 		viewdir = 4
 	end
 	
-	//on which of the possible 6 sides of an already existing block are we spawning?
-	//1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
+	--on which of the possible 6 sides of an already existing block are we spawning?
+	--1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
 	local onSide = -1
 	if (onBlock == true) then
 		if (CLIENT) then
@@ -368,37 +442,37 @@ function ENT:BlockInit( ID , hitEntity )
 		local hitX = hitEntity:GetPos().x;
 		local hitY = hitEntity:GetPos().y;
 		local hitZ = hitEntity:GetPos().z;
-		if (selfX == hitX && selfY == hitY && selfZ > hitZ) then
+		if (selfX == hitX and selfY == hitY and selfZ > hitZ) then
 			onSide = 1;
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("top") end
 			end
 		end
-		if (selfX == hitX && selfY == hitY && selfZ < hitZ) then
+		if (selfX == hitX and selfY == hitY and selfZ < hitZ) then
 			onSide = 2;
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("bottom") end
 			end
 		end
-		if (selfX > hitX && selfY == hitY) then
+		if (selfX > hitX and selfY == hitY) then
 			onSide = 3
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("front") end
 			end
 		end
-		if (selfX < hitX && selfY == hitY) then
+		if (selfX < hitX and selfY == hitY) then
 			onSide = 4
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("back") end
 			end
 		end
-		if (selfX == hitX && selfY < hitY) then
+		if (selfX == hitX and selfY < hitY) then
 			onSide = 5
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("left") end
 			end
 		end
-		if (selfX == hitX && selfY > hitY) then
+		if (selfX == hitX and selfY > hitY) then
 			onSide = 6
 			if (CLIENT) then
 			if (GetConVar("minecraft_debug"):GetBool()) then print("right") end
@@ -407,79 +481,75 @@ function ENT:BlockInit( ID , hitEntity )
 	end
 	
 	
-	//***************************************//
-	//		Global Per-Block Variables  	 //
-	//***************************************//
+	--***************************************--
+	--		Global Per-Block Variables  	 --
+	--***************************************--
 	
 	self.isPowered = false;
 	self.isPowerSource = false;
 	
-	
-	//fix wall sign spawn height
+	--fix wall sign spawn height
 	if ( ID == 65 ) then
 		local pos = self:GetPos()
 		pos.z = pos.z + (18.25/2)
 		self:SetPos( pos )
 	end
 	
-	//fix ender crystal spawn height
+	--fix ender crystal spawn height
 	if ( ID == 198 ) then
 		local pos = self:GetPos()
 		pos.z = pos.z + (75.00/2)
 		self:SetPos( pos )
 	end
 	
-	//fix frame spawn height
+	--fix frame spawn height
 	if ( ID == 188 ) then
 		local pos = self:GetPos()
 		pos.z = pos.z + (12.25/2)
 		self:SetPos( pos )
 	end
 	
-	//auto rotate furnaces, dispensers, stairs, chests, pumpkins, beds, rails, portals, iron bars, glas panes to face the player on spawn
-	if ( ID == 24 || ID == 23 || ID == 45 || ID == 46 || ID == 47 || ID == 77 || ID == 25 
-				  || ID == 34 || ID == 78 || ID == 73 || ID == 74 || ID == 75 || ID == 76
-				  || ID == 59 || ID == 60 || ID == 61 || ID == 92 || ID == 93 || ID == 94
-				  || ID == 181 || ID == 188 || ID == 179 || ID == 199 || ID == 189 || ID == 192 || ID == 198 ) then
+	--auto rotate furnaces, dispensers, stairs, chests, pumpkins, beds, rails, portals, iron bars, glas panes to face the player on spawn
+	if MC.BlockTypes[ID].autoRotate then
 		self:SetAngles( Angle( 0, -90*(viewdir-1), 0 ) )
 	end
 	
-	//auto rotate side-hopper
+	--auto rotate side-hopper
 	if ( ID == 178 ) then
-		if (viewdir == 1 || viewdir == 3) then
+		if (viewdir == 1 or viewdir == 3) then
 			self:SetAngles( Angle( 0, 90*(viewdir+1), 0 ) )
 		else
 			self:SetAngles( Angle( 0, 90*(viewdir-1), 0 ) )
 		end
 	end
 	
-	//auto rotate fences
-	if ( ID == 99 || ID == 100 || ID == 101 || ID == 102 || ID == 103 || ID == 195) then
+	--auto rotate fences
+	if ( ID == 99 or ID == 100 or ID == 101 or ID == 102 or ID == 103 or ID == 195) then
 		self:SetAngles( Angle( 0, -90*(viewdir), 0 ) )
 	end
 	
-	//auto rotate fence gates
-	if (ID == 104 || ID == 105) then
+	--auto rotate fence gates
+	if (ID == 104 or ID == 105) then
 		self:SetAngles(  Angle( 0, -90*(viewdir-1), 0 ) )
 	end
 	
-	//auto rotate wall signs and buttons, stick, and ALL items to other blocks
-	if ( ID == 65 || ID == 98 || ID == 109 || (ID >= 110 && ID <= 116) || (ID >= 135 && ID <= 171) || ID == 188 || ID == 193 || ID == 194) then
-		if ( (ID == 98 || ID == 109 || (ID >= 110 && ID <= 116) || (ID >= 135 && ID <= 171) || ID == 188 || ID == 193 || ID == 194) && onBlock ) then
+	--auto rotate wall signs and buttons, stick, and ALL items to other blocks
+	if ( ID == 65 or ID == 98 or ID == 109 or (ID >= 110 and ID <= 116) or (ID >= 135 and ID <= 171) or ID == 188 or ID == 193 or ID == 194) then
+		if ( (ID == 98 or ID == 109 or (ID >= 110 and ID <= 116) or (ID >= 135 and ID <= 171) or ID == 188 or ID == 193 or ID == 194) and onBlock ) then
 			self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 			local moveValueZ = 16
 			local moveValueX = 0
 			local moveValueY = 0
-			if (ID == 109) then //tripwires
+			if (ID == 109) then --tripwires
 				moveValueZ = 18.5
 			end
-			if (ID == 110 || ID == 193) then //paintings
+			if (ID == 110 or ID == 193) then --paintings
 				moveValueZ = 16.5
 			end
-			if (ID == 188) then //paintings
+			if (ID == 188) then --paintings
 				moveValueZ = 16.5
 			end
-			if (ID >= 111) then //paintings
+			if (ID >= 111) then --paintings
 				moveValueZ = 17.5
 			end
 			if (ID == 111) then
@@ -503,29 +573,29 @@ function ENT:BlockInit( ID , hitEntity )
 				moveValueY = 4
 			end
 			if (onSide == 3) then
-				//print("onSide = 3!")
+				--print("onSide = 3!")
 				self:SetPos( self:GetPos() + Vector(-moveValueZ, moveValueX, moveValueY) )
 			end
 			if (onSide == 4) then
-				//print("onSide = 4!")
+				--print("onSide = 4!")
 				self:SetPos( self:GetPos() + Vector( moveValueZ, moveValueX, moveValueY) )
 			end
 			if (onSide == 5) then
-				//print("onSide = 5!")
+				--print("onSide = 5!")
 				self:SetPos( self:GetPos() + Vector( moveValueX, moveValueZ, moveValueY) )
 			end
 			if (onSide == 6) then
-				//print("onSide = 6!")
+				--print("onSide = 6!")
 				self:SetPos( self:GetPos() + Vector( moveValueX, -moveValueZ, moveValueY) ) 
 			end
 		end
-		if (ID >= 135 && ID <= 171) then //special case: item height
+		if (ID >= 135 and ID <= 171) then --special case: item height
 			self:SetPos( self:GetPos() + Vector(0,0,18) )
 		end
-		if (ID == 193) then //special case: item height
+		if (ID == 193) then --special case: item height
 			self:SetPos( self:GetPos() + Vector(0,0,18) )
 		end
-		if (ID == 194) then //special case: item height
+		if (ID == 194) then --special case: item height
 			self:SetPos( self:GetPos() + Vector(0,0,18) )
 		end
 		if (onBlock) then
@@ -543,15 +613,15 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//auto rotate dooors, set correct position
-	if (ID == 62 || ID == 63) then
-		if (viewdir == 2 || viewdir == 4) then
+	--auto rotate dooors, set correct position
+	if (ID == 62 or ID == 63) then
+		if (viewdir == 2 or viewdir == 4) then
 			self:SetAngles( Angle(0 , 90 , 0) )
 		end
 		local pos = self:GetPos();
-		//local min,max = self:WorldSpaceAABB();       doesn't work because
-		//local halfwidth = math.abs(min.x - max.x)/2; the bounding box sadly is a tiny teeny bit bigger than the actual model
-		//HACKHACK: I hate having to use fixed values determined by testing with convars
+		--local min,max = self:WorldSpaceAABB();       doesn't work because
+		--local halfwidth = math.abs(min.x - max.x)/2; the bounding box sadly is a tiny teeny bit bigger than the actual model
+		--HACKHACK: I hate having to use fixed values determined by testing with convars
 		local halfwidth = 3.4
 		if (viewdir == 1) then
 			pos.x = pos.x + 18.25 - halfwidth;
@@ -568,9 +638,9 @@ function ENT:BlockInit( ID , hitEntity )
 		self:SetPos( pos )
 	end
 	
-	//auto rotate signs to always face the player (like in minecraft)
+	--auto rotate signs to always face the player (like in minecraft)
 	if (ID == 64) then
-		local base = Vector( -1, 0, 0 ) //North vector
+		local base = Vector( -1, 0, 0 ) --North vector
 		local thevector = self:GetPos() - self.Owner:GetPos()
 		local angle = GetAngleBetweenVectors( base, thevector )
 		if (CLIENT) then
@@ -579,13 +649,13 @@ function ENT:BlockInit( ID , hitEntity )
 		self:SetAngles( Angle( 0, angle, 0) )
 	end
 	
-	//rotate all 2.5d sprites 45 degrees (saplings, shrubs, sugar cane, mushrooms, flowers, grass, plants, cobweb), disable player collisions
-	if (ID == 70 || ID == 190 || ID == 191 || ID == 109 || ID == 173 || ID == 172) then
+	--rotate all 2.5d sprites 45 degrees (saplings, shrubs, sugar cane, mushrooms, flowers, grass, plants, cobweb), disable player collisions
+	if (ID == 70 or ID == 190 or ID == 191 or ID == 109 or ID == 173 or ID == 172) then
 		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 		self:SetAngles( Angle( 0,45,0 ) )
 	end
 	
-	//auto rotate ladders, stick to other blocks
+	--auto rotate ladders, stick to other blocks
 	if (ID == 72) then
 		if (onBlock) then
 			if (onSide == 4) then
@@ -602,50 +672,50 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//auto rotate redstone repeaters
-	if (ID == 57 || ID == 58 || (ID >= 118 && ID <= 120) || (ID >= 124 && ID <= 130)) then
-		if (viewdir == 2 || viewdir == 4) then
+	--auto rotate redstone repeaters
+	if (ID == 57 or ID == 58 or (ID >= 118 and ID <= 120) or (ID >= 124 and ID <= 130)) then
+		if (viewdir == 2 or viewdir == 4) then
 			self:SetAngles( Angle( 0, 90*(viewdir-1), 0) )
 		else
 			self:SetAngles( Angle( 0, 90*(viewdir+1), 0) )
 		end
 	end
 	
-	//auto rotate new quartz redstone blocks
-	if (ID == 174 || ID == 175 || ID == 176) then
-			if (viewdir == 2 || viewdir == 4) then
+	--auto rotate new quartz redstone blocks
+	if (ID == 174 or ID == 175 or ID == 176) then
+			if (viewdir == 2 or viewdir == 4) then
 			self:SetAngles( Angle( 0, 90*(viewdir-3), 0) )
 		else
 			self:SetAngles( Angle( 0, 90*(viewdir+3), 0) )
 		end	
 	end
 	
-	//intelligently place torches, auto rotation and positioning ; also set special collision group
-	if (ID == 66 || ID == 67) then
+	--intelligently place torches, auto rotation and positioning ; also set special collision group
+	if (ID == 66 or ID == 67) then
 		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 		local torchAngle = 20;
-		if (onSide == 3) then //front
+		if (onSide == 3) then --front
 			local pos = self:GetPos();
 			pos.x = pos.x - 18.25;
 			pos.z = pos.z + (18.25/2);
 			self:SetPos( pos );
 			self:SetAngles( Angle( torchAngle, 0, 0) )
 		end
-		if (onSide == 4) then //back
+		if (onSide == 4) then --back
 			local pos = self:GetPos();
 			pos.x = pos.x + 18.25;
 			pos.z = pos.z + (18.25/2);
 			self:SetPos( pos );
 			self:SetAngles( Angle( -torchAngle, 0, 0) )
 		end
-		if (onSide == 5) then //left
+		if (onSide == 5) then --left
 			local pos = self:GetPos();
 			pos.y = pos.y + 18.25;
 			pos.z = pos.z + (18.25/2);
 			self:SetPos( pos );
 			self:SetAngles( Angle( -torchAngle, 90, 0) )
 		end
-		if (onSide == 6) then //right
+		if (onSide == 6) then --right
 			local pos = self:GetPos();
 			pos.y = pos.y - 18.25;
 			pos.z = pos.z + (18.25/2);
@@ -654,32 +724,32 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//and the same with levers
+	--and the same with levers
 	if (ID == 68) then
 		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 		local leverAngle = 90;
-		if (onSide == 3) then //front
+		if (onSide == 3) then --front
 			local pos = self:GetPos();
 			pos.x = pos.x - 18.25;
 			pos.z = pos.z + 18.25;
 			self:SetPos( pos );
 			self:SetAngles( Angle( leverAngle, 0, 0) )
 		end
-		if (onSide == 4) then //back
+		if (onSide == 4) then --back
 			local pos = self:GetPos();
 			pos.x = pos.x + 18.25;
 			pos.z = pos.z + 18.25;
 			self:SetPos( pos );
 			self:SetAngles( Angle( -leverAngle, 0, 0) )
 		end
-		if (onSide == 5) then //left
+		if (onSide == 5) then --left
 			local pos = self:GetPos();
 			pos.y = pos.y + 18.25;
 			pos.z = pos.z + 18.25;
 			self:SetPos( pos );
 			self:SetAngles( Angle( -leverAngle, 90, 0) )
 		end
-		if (onSide == 6) then //right
+		if (onSide == 6) then --right
 			local pos = self:GetPos();
 			pos.y = pos.y - 18.25;
 			pos.z = pos.z + 18.25;
@@ -688,7 +758,7 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end	
 	
-	//tnt blocks
+	--tnt blocks
 	if (ID == 39) then
 		if (self:CheckPos(ID)) then
 		local thetnt = ents.Create( "mc_tnt" )
@@ -699,14 +769,14 @@ function ENT:BlockInit( ID , hitEntity )
 		thetnt:Spawn()
 		local phys = thetnt:GetPhysicsObject()
 		if (phys:IsValid()) then
-			phys:EnableMotion( false ) //freeze the block
+			phys:EnableMotion( false ) --freeze the block
 			phys:Wake()
 		end
 		self:Remove()
 		end
 	end
 	
-	//cake 
+	--cake 
 	if (ID == 48) then
 		if (self:CheckPos(ID)) then
 		local ent = ents.Create( "mc_cake" )
@@ -724,8 +794,8 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//auto rotation of glass panes, iron bars, portals, fence-2 if they are spawning touching already existing ones
-	if (ID == 59 || ID == 60 || ID == 61 || ID == 100) then
+	--auto rotation of glass panes, iron bars, portals, fence-2 if they are spawning touching already existing ones
+	if (ID == 59 or ID == 60 or ID == 61 or ID == 100) then
 		if (onBlock) then
 			if (hitEntity.dt.blockID == ID) then
 				self:SetAngles( hitEntity:GetAngles() );
@@ -770,7 +840,7 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//intelligently rotate vines
+	--intelligently rotate vines
 	if (ID == 82) then
 		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER );
 		local pos = self:GetPos();
@@ -809,14 +879,14 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//flip stairs
-	if ( (ID == 45 || ID == 46 || ID == 47 || ID == 181) && GetCSConVarB( "minecraft_flipstairs", self.Owner )) then
+	--flip stairs
+	if ( (ID == 45 or ID == 46 or ID == 47 or ID == 181) and (GetCSConVarB( "minecraft_flipstairs", self.Owner )) or onSide == 2) then
 		self:SetAngles( self:GetAngles() + Angle(0,0,180) )
 		self:SetPos( self:GetPos() + Vector(0,0,36.5) );
 	end
 	
-	//flip logs, if flipped also auto rotate
-	if ( (ID == 31 || ID == 200) && GetCSConVarB( "minecraft_fliplogs", self.Owner ) ) then
+	--flip logs, if flipped also auto rotate
+	if ( (ID == 31 or ID == 200) and GetCSConVarB( "minecraft_fliplogs", self.Owner ) ) then
 		self:SetAngles( self:GetAngles() + Angle(0,0,90) + Angle( 0,-90*(viewdir),0))
 		if (viewdir == 1) then
 			self:SetPos( self:GetPos() + Vector(18.25,0,18.25) )
@@ -832,13 +902,13 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//place the cauldron just a teeny bit higher so we don't get z-fighting on the ground vertices
+	--place the cauldron just a teeny bit higher so we don't get z-fighting on the ground vertices
 	if ( ID == 88 ) then
 		self:SetPos( self:GetPos() + Vector(0,0,0.1) )
 	end
 	
-	//auto rotate cocoa beans
-	if ( ID >= 89 && ID <= 91 ) then
+	--auto rotate cocoa beans
+	if ( ID >= 89 and ID <= 91 ) then
 		self:SetAngles( Angle( 0,-90*(viewdir-1),0) )
 		local addHeight = 4;
 		if (ID == 91) then
@@ -853,13 +923,13 @@ function ENT:BlockInit( ID , hitEntity )
 		self:SetPos( self:GetPos() + Vector(0,0,addHeight) )
 	end
 	
-	//fix spawn height of crops, carrots, tree saplings etc.
-	if ( ID == 70 || ID == 71 || ID == 123 || ID == 172 || ID == 173 || ID == 190 || ID == 191 ) then
+	--fix spawn height of crops, carrots, tree saplings etc.
+	if ( ID == 70 or ID == 71 or ID == 123 or ID == 172 or ID == 173 or ID == 190 or ID == 191 ) then
 		self:SetPos( self:GetPos() + Vector(0,0,2.21) )
 	end
 	
-	//stack slabs
-	if ( (ID >= 49 && ID <= 54) || ID == 107 || ID == 180 ) then
+	--stack slabs
+	if ( (ID >= 49 and ID <= 54) or ID == 107 or ID == 180 ) then
 		self.isSlabStacked = false
 		if (onSide == 1) then
 			local t1 = self:GetNearbyBlock(2);
@@ -874,15 +944,15 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//normal sign 
+	--normal sign 
 	if (ID == 64) then
 		if (self:CheckPos(ID)) then
 		local ent = ents.Create( "minecraft_sign" )
 		ent:SetPos( self:GetPos() )
 		
-			//orient facing the player
-			//HACKHACK: code duplication!
-			local base = Vector( -1, 0, 0 ) //North vector
+			--orient facing the player
+			--HACKHACK: code duplication!
+			local base = Vector( -1, 0, 0 ) --North vector
 			local thevector = self:GetPos() - self.Owner:GetPos()
 			local angle = GetAngleBetweenVectors( base, thevector )
 			ent:SetAngles( Angle( 0, angle, 0) )
@@ -899,7 +969,7 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//wall sign 
+	--wall sign 
 	if (ID == 65) then
 		if (self:CheckPos(ID)) then
 		local ent = ents.Create( "minecraft_wall_sign" )
@@ -917,35 +987,38 @@ function ENT:BlockInit( ID , hitEntity )
 		end
 	end
 	
-	//****************************//
-	//		Special blocks 		  //
-	//****************************//
+	--****************************--
+	--		Special blocks 		  --
+	--****************************--
 	
-	//create member variables used by doors and trapdoors, also rotate doors to always face the player
-	if ( ID == 55 || ID == 62 || ID == 63 ) then
+	--create member variables used by doors and trapdoors, also rotate doors to always face the player
+	if ( ID == 55 or ID == 62 or ID == 63 ) then
 		self:SetAngles( Angle( 0,-90*(viewdir-1),0) )
 		self.isDoorOpen = false
 		self.doorAngle = Angle(0,0,0)
 	end
 end
 
-//*****************************************************************
-//	PhysicsCollide + Use
-//*****************************************************************
+--*****************************************************************
+--	PhysicsCollide + Use
+--*****************************************************************
 
 function ENT:PhysicsCollide( data, physobj )
-	if (data.HitEntity:IsWorld() || data.HitEntity:GetClass() == "minecraft_block" || data.HitEntity:GetClass() == "minecraft_block_waterized") then return end
+	if (data.HitEntity:IsWorld() or data.HitEntity:GetClass() == "minecraft_block" or data.HitEntity:GetClass() == "minecraft_block_waterized") then return end
 	
-	//when running into cactus blocks, deal damage!
-	if (self.dt.blockID == 32) then
-		data.HitEntity:TakeDamage( 15, data.HitEntity, self )
+	blockType = MC.BlockTypes[self:GetBlockID()]
+	if !blockType then return end
+	
+	--when running into cactus blocks, deal damage!
+	if blockType.contactDamage > 0 then
+		data.HitEntity:TakeDamage( blockType.contactDamage, data.HitEntity, self )
 	end
 	
-	if (self.dt.blockID == 69) then
-		data.HitEntity:Ignite(5,0);
+	if blockType.ignitePlayer then
+		data.HitEntity:Ignite( 5, 0 )
 	end
 	
-	//TODO: add moar
+	--TODO: add moar
 end
 
 function ENT:StartTouch( ent )
@@ -958,12 +1031,12 @@ function ENT:Use( activator, caller )
 	if ( activator:IsPlayer() ) then
 		local ID = self:GetBlockID()
 		
-		//open/close doors
-		if ( ID == 62 || ID == 63 ) then
+		--open/close doors
+		if ( ID == 62 or ID == 63 ) then
 			self:updateDoors( !self.isDoorOpen )
 		end
 		
-		//open/close trapdoors
+		--open/close trapdoors
 		if ( ID == 55 ) then
 			local curAngle = self:GetAngles()
 			if ( !self.isDoorOpen ) then
@@ -986,7 +1059,7 @@ function ENT:Use( activator, caller )
 			end
 		end
 		
-		//buttons
+		--buttons
 		if ( ID == 98 ) then
 			if (!self.isPowered) then
 				self.isPowered = true
@@ -1025,9 +1098,9 @@ function ENT:updateDoors( open )
 	end
 end
 
-//***************************************
-//	Random helper functions
-//***************************************
+--***************************************
+--	Random helper functions
+--***************************************
 
 function updateBlocksAround( block )
 		local t1 = block:GetNearbyBlock(1);
@@ -1037,22 +1110,22 @@ function updateBlocksAround( block )
 		local t5 = block:GetNearbyBlock(5);
 		local t6 = block:GetNearbyBlock(6);
 		if (IsValid(t1)) then
-			t1:SetNetworkedBool("doUpdate",true);
+			t1:SetDoUpdate( true )
 		end
 		if (IsValid(t2)) then
-			t2:SetNetworkedBool("doUpdate",true);
+			t2:SetDoUpdate( true )
 		end
 		if (IsValid(t3)) then
-			t3:SetNetworkedBool("doUpdate",true);
+			t3:SetDoUpdate( true )
 		end
 		if (IsValid(t4)) then
-			t4:SetNetworkedBool("doUpdate",true);
+			t4:SetDoUpdate( true )
 		end
 		if (IsValid(t5)) then
-			t5:SetNetworkedBool("doUpdate",true);
+			t5:SetDoUpdate( true )
 		end
 		if (IsValid(t6)) then
-			t6:SetNetworkedBool("doUpdate",true);
+			t6:SetDoUpdate( true )
 		end	
 end
 
@@ -1123,7 +1196,7 @@ function isPoweredBlockAround( block )
 end
 
 function RotatePoint2D( toRotate, Anchor, Angle )
-	local radians = -Angle*(math.pi/180); //convert degrees to radians
+	local radians = -Angle*(math.pi/180); --convert degrees to radians
 	local xdiff = toRotate.x-Anchor.x;
 	local ydiff = toRotate.y-Anchor.y;                                                                        
 	return Vector(math.cos(radians)*xdiff-math.sin(radians)*ydiff+Anchor.x,math.sin(radians)*xdiff+math.cos(radians)*ydiff+Anchor.y,0);

@@ -1,7 +1,7 @@
-//************************************//
-//  prop_waterized base (c) Meoo~we   //
-//     everything else (c) McKay      //
-//************************************//
+--************************************--
+--  prop_waterized base (c) Meoo~we   --
+--     everything else (c) McKay      --
+--************************************--
 
 include('shared.lua')
 
@@ -32,7 +32,7 @@ usermessage.Hook("w_EndTouch", function( um )
 end )
 
 function ENT:Initialize()
-	//remove hook
+	--remove hook
 	if (USE_MESH) then
 	hook.Add( "waterRemove", "waterremove", WOnRemove )
 	self:CallOnRemove("waterremove",WOnRemove)

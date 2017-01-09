@@ -11,7 +11,7 @@ local material = "models/MCModelPack/animated/tnt-active"
 
 local timeadd = 0
 
-//Accessor Funcs
+--Accessor Funcs
 function ENT:SetPlayer( ply )
     self.Owner = ply
 end
@@ -83,21 +83,21 @@ function ENT:OnTakeDamage( dmginfo )
 	self:EmitSound( "minecraft/ignite.wav", 100, 100 )
 	self:SetMaterial( material )
 	
-	//on activation, re-enable physics! (like in minecraft)
+	--on activation, re-enable physics! (like in minecraft)
 	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:EnableMotion( true )
 		phys:Wake()
 	end
 	
-	//set time
+	--set time
 	self.timer = CurTime() + GetConVar("minecraft_tnt_timer"):GetFloat()+timeadd
 	
 	self.ignited = 1
 end
 
 function ENT:Explode()
-	local effectdata = EffectData()			// Explosion EffectData()
+	local effectdata = EffectData()			-- Explosion EffectData()
 		effectdata:SetOrigin( self.Entity:GetPos() )
 		effectdata:SetMagnitude( 1 )
 		effectdata:SetScale( 2 )
@@ -107,7 +107,7 @@ function ENT:Explode()
 	util.Effect( "mc-explosion", effectdata, true, true )
 	util.BlastDamage( self, self, self:GetPos(), radius, GetConVar("minecraft_tnt_damage"):GetInt() )
 	
-	if (self:GetPlayer() != nil && SERVER) then
+	if (self:GetPlayer() != nil and SERVER) then
 		if (self:GetPlayer().GetInfoNum ~= nil) then
 			self:GetPlayer():ConCommand("cl_minecraft_blockcount ".. (self:GetPlayer():GetInfoNum("cl_minecraft_blockcount", 0))-1)
 		end
@@ -130,14 +130,14 @@ function ENT:Ignite()
 	self:EmitSound( "minecraft/ignite.wav", 100, 100 )
 	self:SetMaterial( material )
 	
-	//on activation, re-enable physics! (like in minecraft)
+	--on activation, re-enable physics! (like in minecraft)
 	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:EnableMotion( true )
 		phys:Wake()
 	end
 	
-	//set time
+	--set time
 	self.timer = CurTime() + GetConVar("minecraft_tnt_timer"):GetFloat()+timeadd
 	
 	self.ignited = 1
@@ -157,14 +157,14 @@ function ENT:Use( activator, caller )
 	self:EmitSound( "minecraft/ignite.wav", 100, 100 )
 	self:SetMaterial( material )
 	
-	//on activation, re-enable physics! (like in minecraft)
+	--on activation, re-enable physics! (like in minecraft)
 	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:EnableMotion( true )
 		phys:Wake()
 	end
 	
-	//set time
+	--set time
 	self.timer = CurTime() + GetConVar("minecraft_tnt_timer"):GetFloat()+timeadd
 	
 	self.ignited = 1

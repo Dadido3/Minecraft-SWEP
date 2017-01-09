@@ -1,7 +1,7 @@
-//********************************//
-//     Minecraft Sign Entity      //
-//			 (c) McKay			  //
-//********************************//
+--********************************--
+--     Minecraft Sign Entity      --
+--			 (c) McKay			  --
+--********************************--
 
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
@@ -23,14 +23,14 @@ net.Receive("MinecraftSignTextChange", function( len )
 function ENT:Initialize()
 	self:SetModel( "models/MCModelPack/entities/sign.mdl" )
 
-    //no movement
+    --no movement
     self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType(MOVETYPE_VPHYSICS)
 	self:SetSolid( SOLID_VPHYSICS )   
-	// Wake the physics object up
+	-- Wake the physics object up
 	local phys = self.Entity:GetPhysicsObject()
 	if (phys:IsValid()) then
-		phys:EnableMotion( false ) //freeze the block
+		phys:EnableMotion( false ) --freeze the block
 		phys:Wake()
 	end
 	
@@ -46,8 +46,8 @@ function ENT:SpawnFunction( ply, tr )
 	local ent = ents.Create( ClassName )
 	ent:SetPos( SpawnPos )
 	
-	//orient facing the player
-	local base = Vector( -1, 0, 0 ) //North vector
+	--orient facing the player
+	local base = Vector( -1, 0, 0 ) --North vector
 	local thevector = SpawnPos - ply:GetPos()
 	local angle = GetAngleBetweenVectors( base, thevector )
 	ent:SetAngles( Angle( 0, angle, 0) )
@@ -58,12 +58,12 @@ function ENT:SpawnFunction( ply, tr )
 	return ent
 end
 
-//***************************************
-//	OnTakeDamage
-//***************************************
+--***************************************
+--	OnTakeDamage
+--***************************************
 
 function ENT:OnTakeDamage( dmginfo )
-	// React physically when shot/getting blown
+	-- React physically when shot/getting blown
 	self.Entity:TakePhysicsDamage( dmginfo )
 	
 	if (self.health <= 0) then return end;
@@ -73,18 +73,18 @@ function ENT:OnTakeDamage( dmginfo )
 	end
 end
 
-//***************************************
-//	Remove with particle effects
-//***************************************
+--***************************************
+--	Remove with particle effects
+--***************************************
 
 function ENT:RemoveSpecial()
-	//can't touch this (anymore)
+	--can't touch this (anymore)
 	self:SetNotSolid( true )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetNoDraw( true )
 	
 	if ( self.health != -1 ) then
-		//create particle effect
+		--create particle effect
 		local effect = EffectData();
 		local pos = self:GetPos();
 		local aabb_min, aabb_max = self:WorldSpaceAABB();
@@ -95,16 +95,16 @@ function ENT:RemoveSpecial()
 		effect:SetEntity( self )
 		util.Effect( "mc-sparkle", effect, true, true );
 		
-		//properly remove after 0.2 seconds
+		--properly remove after 0.2 seconds
 		timer.Simple( 0.2, function() if ( IsValid( self ) ) then self:Remove() end end )
 	else
 		self:Remove()
 	end
 end
 
-//***************************************
-//	OnSpawn - sounds and health values
-//***************************************
+--***************************************
+--	OnSpawn - sounds and health values
+--***************************************
 
 function ENT:OnSpawn( ID, hitEntity )
 	self.spawned = true

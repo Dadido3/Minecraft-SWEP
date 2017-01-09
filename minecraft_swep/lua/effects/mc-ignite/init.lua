@@ -13,7 +13,7 @@ function EFFECT:Init( data )
 end
 
 function EFFECT:Emit()
-	local BonePos , BoneAng = self.ent:GetBonePosition( 0 ) //hardcoded bone index because gmod 13 is being a bitch
+	local BonePos , BoneAng = self.ent:GetBonePosition( 0 ) --hardcoded bone index because gmod 13 is being a bitch
 
 	local color = math.random( 1, 40 )
 	local emitter = ParticleEmitter( BonePos )
@@ -37,7 +37,7 @@ end
 function EFFECT:Think()
 	if (self.ent == NULL) then return false end
 	
-	if (self.emit == 1 && self.max > 0 && CurTime() > self.timer) then
+	if (self.emit == 1 and self.max > 0 and CurTime() > self.timer) then
 		self:Emit()
 	end
 	return true

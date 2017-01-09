@@ -6,15 +6,15 @@ local GlowMaterial = CreateMaterial( "arcadiumsoft/glow", "UnlitGeneric", {
     
 function EFFECT:Init( data )
 	local TargetEntity = data:GetEntity()
-	if ( !TargetEntity || !TargetEntity:IsValid() ) then return end
+	if ( !TargetEntity or !TargetEntity:IsValid() ) then return end
 	
 	local vOffset = TargetEntity:GetPos()
 	local Low, High = TargetEntity:WorldSpaceAABB()
 	
-	self.LifeTime = math.Rand( GetConVar("minecraft_particles_lifetime_min"):GetFloat(), GetConVar("minecraft_particles_lifetime_max"):GetFloat() );    // 0.25, 0.35
+	self.LifeTime = math.Rand( GetConVar("minecraft_particles_lifetime_min"):GetFloat(), GetConVar("minecraft_particles_lifetime_max"):GetFloat() );    -- 0.25, 0.35
 	self.DieTime = CurTime() + self.LifeTime;
 	
-	//create particle emitter and particles
+	--create particle emitter and particles
 	local emitter = ParticleEmitter( vOffset );
 	for i=0, GetConVar("minecraft_particles_count"):GetInt() do
 		local vPos = Vector( math.Rand(Low.x,High.x), math.Rand(Low.y,High.y), math.Rand(Low.z,High.z) )
@@ -22,7 +22,7 @@ function EFFECT:Init( data )
 		
 		if (particle) then
 			particle:SetVelocity( RandomSpherePoint() * GetConVar("minecraft_particles_outwardforce"):GetInt() )
-			//particle:SetVelocity( (vPos - vOffset) * 3 )
+			--particle:SetVelocity( (vPos - vOffset) * 3 )
 			particle:SetDieTime( math.Rand( GetConVar("minecraft_particles_dietime_min"):GetInt(), GetConVar("minecraft_particles_dietime_max"):GetInt() ) );
 			particle:SetStartAlpha( 255 );
 			particle:SetEndAlpha( 0 );

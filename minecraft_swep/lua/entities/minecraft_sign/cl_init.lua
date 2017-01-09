@@ -1,7 +1,7 @@
-//********************************//
-//     Minecraft Sign Entity      //
-//			 (c) McKay			  //
-//********************************//
+--********************************--
+--     Minecraft Sign Entity      --
+--			 (c) McKay			  --
+--********************************--
 
 include('shared.lua')
 
@@ -9,7 +9,7 @@ ENT.RenderGroup = RENDERGROUP_BOTH
 
 surface.CreateFont( "MinecraftSignFont", {
 	font = "Terminal",
-	size = 13, //8
+	size = 13, --8
 	weight = 500,
 	blursize = 0,
 	scanlines = 0,
@@ -40,7 +40,7 @@ function ENT:Draw()
 	ang:RotateAroundAxis( ang:Up(), 90)
  
 	cam.Start3D2D( self:GetPos() + ang:Up()*1.6+ ang:Right()*-39.7, ang, 0.3 )
-	//cam.Start3D2D( self:GetPos() + ang:Up()*1.6+ ang:Right()*-39.5, ang, 0.405 ) //0.405
+	--cam.Start3D2D( self:GetPos() + ang:Up()*1.6+ ang:Right()*-39.5, ang, 0.405 ) --0.405
 		render.PushFilterMin( TEXFILTER.NONE )
 		render.PushFilterMag( TEXFILTER.NONE )
 			draw.DrawText(self:GetText(), "MinecraftSignFont", 0, 3, Color(0,0,0,255), TEXT_ALIGN_CENTER)
@@ -65,13 +65,13 @@ local function RecvMinecraftSignTextMenuUmsg( data )
 	
 	local textLengthLimit = 15
 
-	//create main frame
+	--create main frame
 	local mc_frame = vgui.Create( "DFrame" )
 	mc_frame:SetMouseInputEnabled( true )
 	mc_frame:SetKeyboardInputEnabled( true )
 	mc_frame:SetSize( 175, 210 )
 	mc_frame:SetSizable(false)
-	//mc_frame:SetBackgroundBlur(true)
+	--mc_frame:SetBackgroundBlur(true)
 		
 	mc_frame:SetTitle( "Edit Sign Text" )
 	mc_frame:SetDeleteOnClose( true )
@@ -204,7 +204,7 @@ local function RecvMinecraftSignTextMenuUmsg( data )
 	line4Info:SetSize( 20, line4:GetTall() )
 	line4Info:SetText( tostring(textLengthLimit) )
 	
-	//open
+	--open
 	line1:RequestFocus()
 	mc_frame:SetVisible( true )
 	mc_frame:Center()

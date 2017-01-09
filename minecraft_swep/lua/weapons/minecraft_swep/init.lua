@@ -1,12 +1,12 @@
-//********************************//
-//     		(c) McKay        	  //   Do NOT redistribute!
-//********************************//
+--********************************--
+--     		(c) McKay        	  --   Do NOT redistribute!
+--********************************--
 
 
 
-//********************************//
-//     	  Global variables        //
-//********************************//
+--********************************--
+--     	  Global variables        --
+--********************************--
 
 if (CLIENT) then
 	local m_bBlockNewPanel = false
@@ -31,10 +31,10 @@ if (SERVER) then
 	CreateConVar( "minecraft_swep_blocklimit", "2048", { FCVAR_REPLICATED, FCVAR_ARCHIVE } )
 	CreateConVar( "minecraft_swep_enable_water_spread", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE } )
 	
-	//delete all my blocks on disconnect
+	--delete all my blocks on disconnect
 	local function MCPlayerDisconnect( ply )
 		for k, v in pairs( ents.FindByName( "mcblock*" ) ) do
-			if ( v:IsValid() && v:GetPlayer() == ply ) then
+			if ( v:IsValid() and v:GetPlayer() == ply ) then
 				v.Entity.health = -1
 				v.Entity.simpleRemove = true
 				v:Remove()
@@ -47,9 +47,9 @@ if (SERVER) then
 end
 
 
-//********************************//
-//     	  	  Includes            //
-//********************************//
+--********************************--
+--     	  	  Includes            --
+--********************************--
 
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
@@ -58,14 +58,14 @@ include( 'shared.lua' )
 
 
 
-//********************************//
-//     	  	  Resources           //
-//********************************//
+--********************************--
+--     	  	  Resources           --
+--********************************--
 
-function AddDir(dir) // Recursively adds everything in a directory to be downloaded by client
+function AddDir(dir) -- Recursively adds everything in a directory to be downloaded by client
 	local files,folders = file.Find(dir.."/*", "GAME")
 	for _, fdir in pairs(folders) do
-		if fdir != ".svn" then // Don't spam people with useless .svn folders
+		if fdir != ".svn" then -- Don't spam people with useless .svn folders
 			AddDir(dir.."/"..fdir, "GAME")
 		end
 	end

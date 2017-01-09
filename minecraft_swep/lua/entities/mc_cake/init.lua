@@ -18,7 +18,7 @@ local model2 = "models/mcmodelpack/other_blocks/cake-sliced.mdl"
 local model3 = "models/mcmodelpack/other_blocks/cake-half.mdl"
 local model4 = "models/mcmodelpack/other_blocks/cake-quarter.mdl"
 
-//Accessor Funcs
+--Accessor Funcs
 function ENT:SetPlayer( ply )
     self.Owner = ply
 end
@@ -74,7 +74,7 @@ function ENT:Use( activator )
 
 	local model = self.Entity:GetModel()
 
-// Check what model needs to be set
+-- Check what model needs to be set
 	if ( model == model4 ) then	
 		self.Entity:Remove()
 	end
@@ -88,7 +88,7 @@ function ENT:Use( activator )
 		self:SetModel( model2 )
 	end
 
-// Give health
+-- Give health
 	if activator:IsPlayer() then
 		local health = activator:Health()
 		activator:SetHealth( health + 25 )
