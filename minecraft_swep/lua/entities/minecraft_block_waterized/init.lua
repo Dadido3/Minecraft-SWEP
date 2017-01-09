@@ -29,26 +29,18 @@ function ENT:Initialize()
 	--remove hook
 	hook.Add( "waterRemove", "waterremove", WOnRemove )
 	self:CallOnRemove("waterremove",WOnRemove)
-	if (USE_MESH) then
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
 	
-		self:SetNoDraw( true )
-		self:SetRenderMode( RENDERMODE_NONE )
-		self:SetColor( 0, 0, 0, 0 )
-	else
-		-- Basic stufff
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_VPHYSICS )
-		self:SetSolid( SOLID_VPHYSICS )
-	
-		local phys = self.Entity:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:EnableMotion( false ) --freeze the block
-			phys:Wake()
-		end
+	-- Basic stufff
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+
+	local phys = self.Entity:GetPhysicsObject()
+	if (phys:IsValid()) then
+		phys:EnableMotion( false ) --freeze the block
+		phys:Wake()
 	end
+
     -- Nocollide
     self:SetCollisionGroup( COLLISION_GROUP_WORLD )
     self.CollisionGroup = COLLISION_GROUP_WORLD
