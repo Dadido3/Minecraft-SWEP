@@ -230,7 +230,7 @@ function openBlockMenu( ply, cmd, args )
 	local crashcount = 0
 	for k, v in pairs( ents.GetAll() ) do
         if IsValid( v ) then
-			if v:GetClass() != "minecraft_block" and v:GetClass() != "minecraft_block_waterized" and v:GetClass() != "mc_tnt" and v:GetClass() != "mc_cake") then
+			if v:GetClass() != "minecraft_block" and v:GetClass() != "minecraft_block_waterized" and v:GetClass() != "mc_tnt" and v:GetClass() != "mc_cake" then
 				crashcount = crashcount + 1
 			end
         end  
@@ -317,7 +317,7 @@ function createBlockMenu( ply, cmd, args )
 	mc_blockPanel:PerformLayout() 
 	--add every block in the global table 'BlockTypes'
 	for k, v in pairs( MC.BlockTypes ) do
-		if isBlockAllowed( ID ) then
+		--if isBlockAllowed( ID ) then -- TODO: Correctly transfer the convar to the client
 			mc_blockPanel:AddModel( v.model, 0, k )
 			
 			local modelInfo = util.GetModelInfo( v.model )
@@ -328,7 +328,7 @@ function createBlockMenu( ply, cmd, args )
 					mc_blockPanel:AddModel( v.model, skn, k )
 				end
 			end
-		end
+		--end
 	end
 	
 	--center all right ui elements

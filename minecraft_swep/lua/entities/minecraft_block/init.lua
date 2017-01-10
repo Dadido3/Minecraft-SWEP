@@ -96,7 +96,6 @@ function ENT:OnSpawn( ID, hitEntity )
 	self.health = blockType.health
 	
 	self.stable = true
-	self:SetUpdateStability( true )
 	
 	if ( !GetCSConVarB( "minecraft_disablesounds", self.Owner ) ) then
 		self:EmitSound( table.Random( blockType.material.soundTable ), 510, math.random(60,100))
@@ -113,12 +112,12 @@ function ENT:PostSpawn ( ID )
 	--notify all nearby blocks to update themselves
 	--i think it's more efficient to update the blocks on spawn instead of every Think() cycle?
 	--even though we are calling the function 6 times.. (idk)
-	local t1 = self:GetNearbyBlock( 1 );
-	local t2 = self:GetNearbyBlock( 2 );
-	local t3 = self:GetNearbyBlock( 3 );
-	local t4 = self:GetNearbyBlock( 4 );
-	local t5 = self:GetNearbyBlock( 5 );
-	local t6 = self:GetNearbyBlock( 6 );
+	local t1 = self:GetNearbyBlock( MC.cubeFace.top )
+	local t2 = self:GetNearbyBlock( MC.cubeFace.bottom )
+	local t3 = self:GetNearbyBlock( MC.cubeFace.north )
+	local t4 = self:GetNearbyBlock( MC.cubeFace.south )
+	local t5 = self:GetNearbyBlock( MC.cubeFace.east )
+	local t6 = self:GetNearbyBlock( MC.cubeFace.west )
 	
 	if (t1 != nil) then
 		if (t1:IsValid()) then
@@ -290,12 +289,12 @@ function ENT:OnRemoveSpecial( )
 	end
 	
 	--update all nearby blocks
-	local t1 = self:GetNearbyBlock( 1 )
-	local t2 = self:GetNearbyBlock( 2 )
-	local t3 = self:GetNearbyBlock( 3 )
-	local t4 = self:GetNearbyBlock( 4 )
-	local t5 = self:GetNearbyBlock( 5 )
-	local t6 = self:GetNearbyBlock( 6 )
+	local t1 = self:GetNearbyBlock( MC.cubeFace.top )
+	local t2 = self:GetNearbyBlock( MC.cubeFace.bottom )
+	local t3 = self:GetNearbyBlock( MC.cubeFace.north )
+	local t4 = self:GetNearbyBlock( MC.cubeFace.south )
+	local t5 = self:GetNearbyBlock( MC.cubeFace.east )
+	local t6 = self:GetNearbyBlock( MC.cubeFace.west )
 	
 	if IsValid( t1 ) then
 		t1:SetDoUpdate( true )

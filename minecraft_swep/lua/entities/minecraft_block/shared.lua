@@ -58,90 +58,43 @@ end
 --	GetNearbyBlock
 --*******************************************
 
-function ENT:GetNearbyBlock( onSide )
-	if ( onSide <= 0 or onSide > 6) then print("epic fail") return end
-	--1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
+function ENT:GetNearbyBlock( direction )
+	-- Deprecated direction numbers: 1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
+	-- Translating old numbers to the new variables: 1 --> top, 2 --> bottom, 3 --> north, 4 --> south, 5 --> east, 6 --> west
+	-- Use MC.cubeFace. with { top, bottom, west, east, north, south } instead
 	
-	local bounds = 15; --15
-	local pos = self:GetPos();
-	pos.z = pos.z + 18.25; --center
-	if (onSide == 1) then
-		pos.z = pos.z + 36.5
-	end
-	if (onSide == 2) then
-		pos.z = pos.z - 36.5;
-	end
-	if (onSide == 3) then
-		pos.x = pos.x + 36.5;
-	end
-	if (onSide == 4) then
-		pos.x = pos.x - 36.5;
-	end
-	if (onSide == 5) then
-		pos.y = pos.y - 36.5;
-	end
-	if (onSide == 6) then
-		pos.y = pos.y + 36.5;
-	end
-	for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-		if ( v:IsValid() and v != self ) then
-			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized") then
+	local bounds = MC.cubeSize / 3 - 1
+	local pos = self:GetPos()
+	local posCenter = pos + Vector(0,0,0.5) * MC.cubeSize
+	
+	local neighbourPos = posCenter + MC.cubeFaceNormal[direction] * MC.cubeSize / 2
+	
+	--cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self), 5 )
+	--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 5, Color( 0, 255, 0, 20 ) )
+	
+	-- TODO: Find better method to find neighbours. Slabs are problematic
+	for k, v in pairs( ents.FindInBox( neighbourPos - Vector(bounds,bounds,bounds), neighbourPos + Vector(bounds,bounds,bounds) ) ) do
+		if IsValid( v ) and v != self then
+			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" ) and v.stable then
+				--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 20 ) )
+				--cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 20 ), true )
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self:self.GetBlockID()) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
-				return v;
+				return v
 			end
 		end
 	end
-	--test tracer for detecting world geometry
-	--local tracelength = self:GetPlayer():GetInfoNum("minecraft_water_worldcollision_trl",12.5);
-	local tracelength = 12.5
-	local endpos = pos;
-	endpos.z = endpos.z - tracelength; --i have to use fixed values again fffffffuuuuuuuUUUUUUUUUUUU; why is 18.25 exactly 1 block too high??!
+	
+	-- Test if it hits at least the world in the given direction
 	local tracedata = {}
-	tracedata.start = pos
-	tracedata.endpos = endpos
-	tracedata.filter = self.Owner
+	tracedata.start = posCenter
+	tracedata.endpos = posCenter + MC.cubeFaceNormal[direction] * MC.cubeSize
+	tracedata.filter = { self, self.Owner }
+	
+	--cldebugoverlay.Line( self.Owner, tracedata.start, tracedata.endpos, 5, Color( 0, 0, 255 ), true )
+	
 	local trace = util.TraceLine( tracedata )
-	if (trace.HitWorld) then
-		return NULL
-	else
-		return nil
-	end
-	--and check all 4 sides
-	endpos = pos;
-	endpos.x = endpos.x - tracelength;
-	tracedata.endpos = endpos;
-	trace = util.TraceLine( tracedata )
-	if (trace.HitWorld) then
-		return NULL
-	else
-		return nil
-	end
-	
-	endpos = pos;
-	endpos.x = endpos.x + tracelength;
-	tracedata.endpos = endpos;
-	trace = util.TraceLine( tracedata )
-	if (trace.HitWorld) then
-		return NULL
-	else
-		return nil
-	end
-	
-	endpos = pos;
-	endpos.y = endpos.y - tracelength;
-	tracedata.endpos = endpos;
-	trace = util.TraceLine( tracedata )
-	if (trace.HitWorld) then
-		return NULL
-	else
-		return nil
-	end
-	
-	endpos = pos;
-	endpos.y = endpos.y + tracelength;
-	tracedata.endpos = endpos;
-	trace = util.TraceLine( tracedata )
-	if (trace.HitWorld) then
+	if trace.HitWorld then
+		--cldebugoverlay.Sphere( self.Owner, trace.HitPos, 5, 10, Color( 255, 255, 255 ), true )
 		return NULL
 	else
 		return nil
@@ -165,8 +118,8 @@ function ignoreGrassTopBlock( ID )
 	--end
 end
 
-function ENT:CalculateStability( top, bottom, front, back, left, right )
-	local side = {front, back, left, right}
+function ENT:CalculateStability( top, bottom, west, east, north, south )
+	local side = {west, east, north, south}
 	
 	local blockType = MC.BlockTypes[self:GetBlockID()]
 	
@@ -212,26 +165,28 @@ function ENT:Think( )
 	if self:GetUpdateStability() and self.stable then
 		self:SetUpdateStability( false )
 		
-		local top		= self:GetNearbyBlock(1)
-		local bottom	= self:GetNearbyBlock(2)
-		local front		= self:GetNearbyBlock(3)
-		local back		= self:GetNearbyBlock(4)
-		local left		= self:GetNearbyBlock(5)
-		local right		= self:GetNearbyBlock(6)
+		local top		= self:GetNearbyBlock( MC.cubeFace.top )
+		local bottom	= self:GetNearbyBlock( MC.cubeFace.bottom )
+		local north		= self:GetNearbyBlock( MC.cubeFace.north )
+		local south		= self:GetNearbyBlock( MC.cubeFace.south )
+		local east		= self:GetNearbyBlock( MC.cubeFace.east )
+		local west		= self:GetNearbyBlock( MC.cubeFace.west )
 		
 		local oldStability = self:GetStability()
-		local stability = self:CalculateStability( top, bottom, front, back, left, right )
+		local stability = self:CalculateStability( top, bottom, north, south, east, west )
 		
 		-- If stability changed, update neighbours
 		if oldStability != stability then
 			self:SetStability( stability )
 			
+			--cldebugoverlay.EntityTextAtPosition( self.Owner, self:GetPos(), 0, "Stability: "..stability, 1 )
+			
 			if IsValid( top )		then top:SetUpdateStability( true ) end
 			if IsValid( bottom )	then bottom:SetUpdateStability( true ) end
-			if IsValid( front )		then front:SetUpdateStability( true ) end
-			if IsValid( back )		then back:SetUpdateStability( true ) end
-			if IsValid( left )		then left:SetUpdateStability( true ) end
-			if IsValid( right )		then right:SetUpdateStability( true ) end
+			if IsValid( north )		then north:SetUpdateStability( true ) end
+			if IsValid( south )		then south:SetUpdateStability( true ) end
+			if IsValid( east )		then east:SetUpdateStability( true ) end
+			if IsValid( west )		then west:SetUpdateStability( true ) end
 			
 			-- Unfreeze entity if unstable
 			if stability <= 0.0 then
@@ -259,7 +214,7 @@ function ENT:Think( )
 	
 		--intelligent grass blocks
 		if (ID == 2) then
-			local temp = self:GetNearbyBlock( 1 )
+			local temp = self:GetNearbyBlock( MC.cubeFace.top )
 			if (temp != nil) then --if there is a block on top of me
 				local ID2 = 0;
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] detected block with ID = "..tostring(ID2).." on top") end
@@ -325,9 +280,9 @@ function ENT:Think( )
 				
 				--two different checks for any blocks under this one
 				self:SetPos( spos );
-				local temp = self:GetNearbyBlock( 2 )
+				local temp = self:GetNearbyBlock( MC.cubeFace.bottom )
 				self:SetPos( sposbackup );
-				local temp2 = self:GetNearbyBlock( 2 )
+				local temp2 = self:GetNearbyBlock( MC.cubeFace.bottom )
 				local check2 = true
 				if (temp2 != nil and temp2 != NULL) then
 					if (temp2:GetBlockID() == ID) then
@@ -377,6 +332,9 @@ function ENT:BlockInit( ID , hitEntity )
 	if (GetConVar("minecraft_debug"):GetBool()) then print("block spawned with ID = " .. tostring(ID)) end
 	if (GetConVar("minecraft_debug"):GetBool()) then print("tracer hit " .. tostring(hitEntity:GetClass())) end
 	end
+	
+	self.stable = true
+	self:SetUpdateStability( true )
 	
 	--are we spawning on another block?
 	local onBlock = false
@@ -801,12 +759,12 @@ function ENT:BlockInit( ID , hitEntity )
 				self:SetAngles( hitEntity:GetAngles() );
 			end
 		else
-			local t1 = self:GetNearbyBlock(1);
-			local t2 = self:GetNearbyBlock(2);
-			local t3 = self:GetNearbyBlock(3);
-			local t4 = self:GetNearbyBlock(4);
-			local t5 = self:GetNearbyBlock(5);
-			local t6 = self:GetNearbyBlock(6);
+			local t1 = self:GetNearbyBlock( MC.cubeFace.top )
+			local t2 = self:GetNearbyBlock( MC.cubeFace.bottom )
+			local t3 = self:GetNearbyBlock( MC.cubeFace.north )
+			local t4 = self:GetNearbyBlock( MC.cubeFace.south )
+			local t5 = self:GetNearbyBlock( MC.cubeFace.east )
+			local t6 = self:GetNearbyBlock( MC.cubeFace.west )
 			if (t1 != nil) then
 				if (t1:GetBlockID() == ID) then
 					self:SetAngles( t1:GetAngles() )
@@ -1103,12 +1061,12 @@ end
 --***************************************
 
 function updateBlocksAround( block )
-		local t1 = block:GetNearbyBlock(1);
-		local t2 = block:GetNearbyBlock(2);
-		local t3 = block:GetNearbyBlock(3);
-		local t4 = block:GetNearbyBlock(4);
-		local t5 = block:GetNearbyBlock(5);
-		local t6 = block:GetNearbyBlock(6);
+		local t1 = block:GetNearbyBlock( MC.cubeFace.top )
+		local t2 = block:GetNearbyBlock( MC.cubeFace.bottom )
+		local t3 = block:GetNearbyBlock( MC.cubeFace.north )
+		local t4 = block:GetNearbyBlock( MC.cubeFace.south )
+		local t5 = block:GetNearbyBlock( MC.cubeFace.east )
+		local t6 = block:GetNearbyBlock( MC.cubeFace.west )
 		if (IsValid(t1)) then
 			t1:SetDoUpdate( true )
 		end
@@ -1130,32 +1088,32 @@ function updateBlocksAround( block )
 end
 
 function isPowerBlockAround( block )
-	local t1 = block:GetNearbyBlock(1);
+	local t1 = block:GetNearbyBlock( MC.cubeFace.top )
 	if (IsValid(t1)) then
 		if (t1.isPowerSource) then return true end
 	end
 	
-	local t2 = block:GetNearbyBlock(2);
+	local t2 = block:GetNearbyBlock( MC.cubeFace.bottom )
 	if (IsValid(t2)) then
 		if (t2.isPowerSource) then return true end
 	end
 	
-	local t3 = block:GetNearbyBlock(3);
+	local t3 = block:GetNearbyBlock( MC.cubeFace.north )
 	if (IsValid(t3)) then
 		if (t3.isPowerSource) then return true end
 	end
 	
-	local t4 = block:GetNearbyBlock(4);
+	local t4 = block:GetNearbyBlock( MC.cubeFace.south )
 	if (IsValid(t4)) then
 		if (t4.isPowerSource) then return true end
 	end
 	
-	local t5 = block:GetNearbyBlock(5);
+	local t5 = block:GetNearbyBlock( MC.cubeFace.east )
 	if (IsValid(t5)) then
 		if (t5.isPowerSource) then return true end
 	end
 	
-	local t6 = block:GetNearbyBlock(6);
+	local t6 = block:GetNearbyBlock( MC.cubeFace.west )
 	if (IsValid(t6)) then
 		if (t6.isPowerSource) then return true end
 	end	
@@ -1163,32 +1121,32 @@ function isPowerBlockAround( block )
 end
 
 function isPoweredBlockAround( block )
-	local t1 = block:GetNearbyBlock(1);
+	local t1 = block:GetNearbyBlock( MC.cubeFace.top )
 	if (IsValid(t1)) then
 		if (t1.isPowered) then return true end
 	end
 	
-	local t2 = block:GetNearbyBlock(2);
+	local t2 = block:GetNearbyBlock( MC.cubeFace.bottom )
 	if (IsValid(t2)) then
 		if (t2.isPowered) then return true end
 	end
 	
-	local t3 = block:GetNearbyBlock(3);
+	local t3 = block:GetNearbyBlock( MC.cubeFace.north )
 	if (IsValid(t3)) then
 		if (t3.isPowered) then return true end
 	end
 	
-	local t4 = block:GetNearbyBlock(4);
+	local t4 = block:GetNearbyBlock( MC.cubeFace.south )
 	if (IsValid(t4)) then
 		if (t4.isPowered) then return true end
 	end
 	
-	local t5 = block:GetNearbyBlock(5);
+	local t5 = block:GetNearbyBlock( MC.cubeFace.east )
 	if (IsValid(t5)) then
 		if (t5.isPowered) then return true end
 	end
 	
-	local t6 = block:GetNearbyBlock(6);
+	local t6 = block:GetNearbyBlock( MC.cubeFace.west )
 	if (IsValid(t6)) then
 		if (t6.isPowered) then return true end
 	end	

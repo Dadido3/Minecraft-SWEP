@@ -179,7 +179,7 @@ function SWEP:Precache()
 	return true  
 end
 
-	
+
 --****************************************--
 --   Viewmodel Animation (client only)    --
 --****************************************--
@@ -609,7 +609,7 @@ function SWEP:MCSecondaryAttack()
 		for k, v in pairs( ents.GetAll() ) do
 			if IsValid( v ) then
 				local class = v:GetClass()
-				if class == "minecraft_block" or class == "minecraft_block_waterized" or class == "mc_tnt" or class == "mc_cake") then
+				if class == "minecraft_block" or class == "minecraft_block_waterized" or class == "mc_tnt" or class == "mc_cake" then
 					globalBlockCount = globalBlockCount + 1
 					if v:GetPlayer() == self:GetOwner() then
 						playerBlockCount = playerBlockCount + 1
@@ -633,7 +633,12 @@ function SWEP:MCSecondaryAttack()
 	local target = trace.Entity
 	local distvec = trace.HitPos - self.Owner:GetShootPos()
 	local distance = distvec:Length()
-	if !IsValid( target ) then return end
+	
+	-- Limit distance
+	if distance > MC.buildDistance then return end
+	
+	-- Check if the trace hit something like the world or another prop
+	if trace.HitSky or trace.HitNoDraw or ( !IsValid( target ) and !trace.HitWorld ) then return end
 	local targetClass = target:GetClass()
 	
 	
@@ -673,14 +678,6 @@ function SWEP:MCSecondaryAttack()
 	
 	local distvec = tr.HitPos - self.Owner:GetShootPos()
 	local distance = distvec:Length()
-	
-	--check for distancelimit
-	if distance > MC.buildDistance then
-		isBlock = true
-		if ( ClDebugEnabled() and GetCSConVarB( "minecraft_debug", self:GetOwner() )) 
-			then print("too far!") 
-		end
-	end
 	
 	if ( isBlock == false and tr.HitWorld == false and ( GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 2 or GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 1) ) then
 		
