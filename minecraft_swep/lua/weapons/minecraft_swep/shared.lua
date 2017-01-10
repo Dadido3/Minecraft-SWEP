@@ -597,7 +597,17 @@ function SWEP:MCSecondaryAttack()
 			return
 		end
 	end
-
+	
+	-- Check if there is a player close which would prevent building
+	for k, v in pairs( player.GetAll() ) do
+		if IsValid( v ) and v:Team() == MC.refuseBuildByTeam then -- ZS Specific: Check if entity is a crow
+			if v:Alive() and v:GetClass() ~= "Crow" and v:GetPos():Distance( self.Owner:GetPos() ) < MC.refuseBuildByTeamDistance then
+				self:GetOwner():PrintMessage( HUD_PRINTCENTER, MC.strings.refuseBuildByTeam )
+				return
+			end
+		end
+	end
+	
 	-- Enforce per player and global block limits
 	if SERVER then
 		local playerBlockCount = 0
@@ -637,7 +647,7 @@ function SWEP:MCSecondaryAttack()
 	if trace.HitSky or trace.HitNoDraw or ( !IsValid( target ) and !trace.HitWorld ) then return end
 	local targetClass = target:GetClass()
 	
-	
+	-- TODO: Continue to rewrite this mess from here
 	
 	
 	
@@ -646,7 +656,7 @@ function SWEP:MCSecondaryAttack()
 	local tr = self:GetOwner():GetEyeTrace()
 	local startpos = self:GetOwner():GetShootPos()
 	local isBlock = false
-	-- TODO: Continue to rewrite this mess from here
+	
 	local tracedata = {}
 	tracedata.start = startpos
 	tracedata.endpos = tr.HitPos + tr.HitNormal * 20

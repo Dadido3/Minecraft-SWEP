@@ -2,6 +2,8 @@
 MC.strings = {}
 MC.strings.reachedPlayerBlockLimit =	"You have reached your block limit!"
 MC.strings.reachedGlobalBlockLimit =	"You have reached the global block limit!"
+MC.strings.refuseBuildByTeam =			"You are too close to a zombie!"
+MC.strings.refuseUseToTeam =			"You try to operate the object, but you are not able to! You dud!"
 
 -- #### Settings ####
 MC.healthMul = 1.0						-- Global health multiplier for all blocks
@@ -11,6 +13,10 @@ MC.globalBlockLimit = 2048				-- Global block limit
 MC.playerBlockLimit = 200				-- Block limit per player
 MC.shouldDropOnDie = false				-- Player will drop SWEP on death
 MC.onlyDeleteMinecraftBlocks = true		-- Only delete minecraft blocks, doh
+
+MC.refuseBuildByTeam = 3--TEAM_UNDEAD	-- The team which prevents humans to build, if they are too close
+MC.refuseBuildByTeamDistance = 130		-- Distance under which building is denied
+MC.refuseUseToTeam = 3--TEAM_UNDEAD		-- The team which isn't allowed to use any MC items/blocks
 
 -- #### BlockTypes ####
 

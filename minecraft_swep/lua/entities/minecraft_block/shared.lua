@@ -979,16 +979,26 @@ function ENT:StartTouch( ent )
 end
 
 function ENT:Use( activator, caller )
+	local BlockID = self:GetBlockID()
+	if BlockID ~= 55 and BlockID ~= 62 and BlockID ~= 63 and BlockID ~= 98 then return end -- TODO: Don't use hard coded numbers anywhere!
+	
+	if not IsValid( caller ) or not caller:IsPlayer() then return end
+	
+	-- Check if the player is allowed to use this object
+	if caller:Team() == MC.refuseUseToTeam then
+		caller:PrintMessage( HUD_PRINTCENTER, MC.strings.refuseUseToTeam )
+		return
+	end
+	
 	if ( activator:IsPlayer() ) then
-		local ID = self:GetBlockID()
 		
 		--open/close doors
-		if ( ID == 62 or ID == 63 ) then
+		if ( BlockID == 62 or BlockID == 63 ) then
 			self:updateDoors( !self.isDoorOpen )
 		end
 		
 		--open/close trapdoors
-		if ( ID == 55 ) then
+		if ( BlockID == 55 ) then
 			local curAngle = self:GetAngles()
 			if ( !self.isDoorOpen ) then
 				self:EmitSound( Sound("minecraft/door_open.wav") )
@@ -1011,7 +1021,7 @@ function ENT:Use( activator, caller )
 		end
 		
 		--buttons
-		if ( ID == 98 ) then
+		if ( BlockID == 98 ) then
 			if (!self.isPowered) then
 				self.isPowered = true
 				self:EmitSound( Sound("minecraft/click.wav") )
