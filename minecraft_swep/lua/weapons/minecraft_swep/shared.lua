@@ -403,13 +403,13 @@ function SWEP:Think()
 			local selectedskin = GetCSConVarI( "minecraft_blockskin", self:GetOwner() )
 			for k, v in pairs( ents.FindByName( "mcblock" ) ) do
 				if IsValid( v ) then
-					print(v:GetModel(), v:GetSkin())
 					if ( v:GetPlayer() == self:GetOwner() or game.SinglePlayer() ) then
-						if v:GetModel() == selectedmodel then
-							if v:GetSkin() == selectedskin then
-								v.Entity.health = -1
-								v:Remove()
-							end
+						if v:GetModel() == selectedmodel and v:GetSkin() == selectedskin then
+							v.Entity.health = -1
+							v:Remove()
+						else
+							-- For the remaining blocks, let them recalculate the stability
+							v:SetUpdateStability( true )
 						end
 					end
 				end
