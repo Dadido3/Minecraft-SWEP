@@ -477,9 +477,10 @@ function optionspanel()
 	--general swep settings
 	addConVarCheckbox( "minecraft_swapattack", "Swap destroy/create mouse buttons", 30, options )
 	addConVarCheckbox( "minecraft_disablesounds", "Disable sounds", 50, options )
-	addConVarCheckbox( "minecraft_deletemconly", "Delete Minecraft blocks only", 70, options )
-	addConVarCheckbox( "minecraft_distancelimit", "Distance limit", 96, options )
+	--addConVarCheckbox( "minecraft_deletemconly", "Delete Minecraft blocks only", 70, options )
+	--addConVarCheckbox( "minecraft_distancelimit", "Distance limit", 96, options )
     
+	--[[
     local NumSlider = vgui.Create( "DNumSlider", options )
 		NumSlider:SetPos( 106,75 )
 		NumSlider:SetWide( 130 )
@@ -531,10 +532,10 @@ function optionspanel()
 			end
 			RunConsoleCommand( "minecraft_blockhealth", tostring(fValue) )
 		end
-
+	--]]
 	--fluid settings
-	addConVarCheckbox( "minecraft_lavaigniteplayer", "Lava ignites the player", 159, options )
-	addConVarCheckbox( "minecraft_lavaigniteblocks", "Lava ignites other blocks", 179, options )
+	--addConVarCheckbox( "minecraft_lavaigniteplayer", "Lava ignites the player", 159, options )
+	--addConVarCheckbox( "minecraft_lavaigniteblocks", "Lava ignites other blocks", 179, options )
 	
 	--[[
 	addConVarCheckbox( "minecraft_water_spread", "Water and lava spread", 205, options )
@@ -559,12 +560,11 @@ function optionspanel()
 	--]]
 		
 	--block settings
-	addConVarCheckbox( "minecraft_vines_grow", "Vines grow", 270, options )
+	--addConVarCheckbox( "minecraft_vines_grow", "Vines grow", 270, options )
 	addConVarCheckbox( "minecraft_particles", "Particles", 290, options )
-	addConVarCheckbox( "minecraft_doors_disablecollision", "No Collide doors if open", 310, options )
-	addConVarCheckbox( "minecraft_flipstairs", "Flip stairs", 330, options )
-	addConVarCheckbox( "minecraft_fliplogs", "Flip logs", 350, options )
-	
+	--addConVarCheckbox( "minecraft_doors_disablecollision", "No Collide doors if open", 310, options )
+	--addConVarCheckbox( "minecraft_flipstairs", "Flip stairs", 330, options )
+	--addConVarCheckbox( "minecraft_fliplogs", "Flip logs", 350, options )
 	
 	--addConVarCheckbox( "minecraft_menu_huge", "Huge menu", 370, options )
     local huge_menu = vgui.Create( "DCheckBoxLabel", options )
