@@ -188,7 +188,7 @@ function ENT:Think( )
 				self:Activate()
 				local phys = self:GetPhysicsObject()
 				phys:EnableMotion( true )
-				phys:ApplyForceCenter( Vector( 0, 0, 0 ) ) -- Prevent entity from being stuck in the sky
+				phys:Wake()
 			end
 		end
 		

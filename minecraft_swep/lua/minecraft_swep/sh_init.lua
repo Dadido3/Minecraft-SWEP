@@ -8,10 +8,6 @@ extended by David Vogel (Dadido3)
 
 MC = MC or {}
 
-AddCSLuaFile( "sh_init.lua" )
-AddCSLuaFile( "sh_settings.lua" )
-AddCSLuaFile( "sh_waterizer.lua" )
-
 include( "sh_settings.lua" )
 include( "sh_waterizer.lua" )
 

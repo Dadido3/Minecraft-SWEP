@@ -18,6 +18,8 @@ MC.refuseBuildByTeam = 3--TEAM_UNDEAD	-- The team which prevents humans to build
 MC.refuseBuildByTeamDistance = 130		-- Distance under which building is denied
 MC.refuseUseToTeam = 3--TEAM_UNDEAD		-- The team which isn't allowed to use any MC items/blocks
 
+MC.physTimeout = 1						-- Freeze all blocks if the timeout is reached
+
 -- #### BlockTypes ####
 
 -- Stability settings
