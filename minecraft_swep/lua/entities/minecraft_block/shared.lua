@@ -758,33 +758,33 @@ function ENT:BlockInit( ID , hitEntity )
 			local t4 = self:GetNearbyBlock( MC.cubeFace.south )
 			local t5 = self:GetNearbyBlock( MC.cubeFace.east )
 			local t6 = self:GetNearbyBlock( MC.cubeFace.west )
-			if (t1 ~= nil) then
+			if IsValid( t1 ) then
 				if (t1:GetBlockID() == ID) then
 					self:SetAngles( t1:GetAngles() )
 				end
 			end
-			if (IsValid(t2)) then
-				if (t2:GetBlockID() == ID) then
+			if IsValid( t2 ) then
+				if t2:GetBlockID() == ID then
 					self:SetAngles( t2:GetAngles() )
 				end
 			end
-			if (IsValid(t3)) then
-				if (t3:GetBlockID() == ID) then
+			if IsValid( t3 ) then
+				if t3:GetBlockID() == ID then
 					self:SetAngles( t3:GetAngles() )
 				end
 			end
-			if (IsValid(t4)) then
-				if (t4:GetBlockID() == ID) then
+			if IsValid( t4 ) then
+				if t4:GetBlockID() == ID then
 					self:SetAngles( t4:GetAngles() )
 				end
 			end
-			if (IsValid(t5)) then
-				if (t5:GetBlockID() == ID) then
+			if IsValid( t5 ) then
+				if t5:GetBlockID() == ID then
 					self:SetAngles( t5:GetAngles() )
 				end
 			end
-			if (IsValid(t6)) then
-				if (t6:GetBlockID() == ID) then
+			if IsValid( t6 ) then
+				if t6:GetBlockID() == ID then
 					self:SetAngles( t6:GetAngles() )
 				end
 			end
