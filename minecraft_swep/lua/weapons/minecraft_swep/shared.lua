@@ -240,7 +240,7 @@ function SWEP:GetViewModelPosition( pos, ang )
 			pos = pos + self.thePos.y * ang:Forward() * self.counter
 			pos = pos + self.thePos.z * ang:Up() * self.counter
 	else --don't modify anything if we are not animating
-		if (self.backuppos != posbackup or self.backupang != angbackup) then
+		if (self.backuppos ~= posbackup or self.backupang ~= angbackup) then
 			self.backuppos = posbackup
 			self.backupang = angbackup
 		end
@@ -259,7 +259,7 @@ end
 if (CLIENT) then
 	SWEP.clientModel = ClientsideModel( "models/MCModelPack/blocks/dirt.mdl", RENDERGROUP_TRANSLUCENT)
 	SWEP.worldModelVisible = false;
-	if (IsValid(SWEP.clientModel) and SWEP.clientModel != NULL) then
+	if (IsValid(SWEP.clientModel) and SWEP.clientModel ~= NULL) then
 		SWEP.clientModel:SetNoDraw(true);
 		SWEP.clientModel:DrawShadow(false)
 	end
@@ -332,10 +332,10 @@ end
 
 function SWEP:ViewmodelCheck()
 	--check if any change happened
-	if ( m_iLastBlockType != GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
+	if ( m_iLastBlockType ~= GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
 		m_bUpdateViewmodel = true
 	end
-	if ( m_iLastBlockSkin != GetCSConVarI( "minecraft_blockskin", self:GetOwner() ) ) then
+	if ( m_iLastBlockSkin ~= GetCSConVarI( "minecraft_blockskin", self:GetOwner() ) ) then
 		m_bUpdateViewmodel = true
 	end
 	
@@ -557,7 +557,7 @@ function SWEP:Deploy()
 	if (CLIENT) then
 		self:BuildWorldModel()
 		self.worldModelVisible = true;
-		if (IsValid(self.clientModel) and self.clientModel != NULL) then
+		if (IsValid(self.clientModel) and self.clientModel ~= NULL) then
 			self.clientModel:SetNoDraw(false)
 		end
 	end
@@ -567,7 +567,7 @@ end
 function SWEP:Holster()
 	if (CLIENT) then
 		self.worldModelVisible = false;
-		if (IsValid(self.clientModel) and self.clientModel != NULL) then
+		if (IsValid(self.clientModel) and self.clientModel ~= NULL) then
 			self.clientModel:SetNoDraw(true)
 		end
 	end
@@ -786,7 +786,7 @@ function SWEP:MCSecondaryAttack()
 
 		--handle lava + water (they have their own spawn function)
 		local wasWaterized = 0
-		if (blockID != 41 and blockID != 42 and blockID != 81) then
+		if (blockID ~= 41 and blockID ~= 42 and blockID ~= 81) then
 			lavaorwater = 0
 		else
 			wasWaterized = 1
@@ -829,17 +829,17 @@ function SWEP:MCSecondaryAttack()
 		if (wasWaterized == 0) then
 			local theBlockID = blockID
 			ent = SpawnMinecraftBlock( self:GetOwner(), tr.Entity, theBlockID, Vector(xpos,ypos,zpos), GetCSConVarI( "minecraft_blockrotation", self:GetOwner() ) )
-			if ( ent != nil ) then
+			if ( ent ~= nil ) then
 				self:AttackAnim()
 			end
 		else
-			if (ent != nil) then
+			if (ent ~= nil) then
 				self:AttackAnim()
 			end
 		end
 
 		--create the undo object
-		if (ent != nil) then
+		if (ent ~= nil) then
 		undo.Create("MC Block")
 			undo.AddEntity( nocl )
 			undo.AddEntity( ent )
@@ -1012,7 +1012,7 @@ function SpawnWaterizedBlock( ply, damping, density, buoyancy, btype, pos, block
 	
 	ent:SetDoUpdate( true )
 	
-	if ( GetCSConVarB( "minecraft_debug", ply ) and GetCSConVarB( "minecraft_water_spread", ply) and btype != 3) then 
+	if ( GetCSConVarB( "minecraft_debug", ply ) and GetCSConVarB( "minecraft_water_spread", ply) and btype ~= 3) then 
 		ent:SetColor(255,0,0,255)
 	end
 
@@ -1056,7 +1056,7 @@ function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
 		--check for already existing blocks (to avoid overlapping)
 		for k, v in pairs( ents.FindByClass( "minecraft_block" ) ) do
 			if ( v:IsValid() ) then
-				if ( v:GetPos() == ent:GetPos() and v != ent ) then
+				if ( v:GetPos() == ent:GetPos() and v ~= ent ) then
 					--if ( GetCSConVarB( "minecraft_debug", ply ) ) then ply:ConCommand("echo [CheckPos()] blocks would overlap!") end
 					ent:Remove()
 					return nil

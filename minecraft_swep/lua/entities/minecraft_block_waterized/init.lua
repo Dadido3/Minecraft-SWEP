@@ -44,7 +44,7 @@ function ENT:Initialize()
     -- Nocollide
     self:SetCollisionGroup( COLLISION_GROUP_WORLD )
     self.CollisionGroup = COLLISION_GROUP_WORLD
-	if (self:GetPlayer() != nil) then
+	if (self:GetPlayer() ~= nil) then
 		self:SetNotSolid(self:GetPlayer().w_EnableCollisions)
 	end
 	-- Set Trigger
@@ -77,7 +77,7 @@ function ENT:StartTouch( ent )
 						ent:Ignite(40,0)
 					end
 				else
-					if (ent:GetName() != "mcblock" and canIgnite) then
+					if (ent:GetName() ~= "mcblock" and canIgnite) then
 						ent:Ignite(40,0)
 					end			
 				end
@@ -88,7 +88,7 @@ function ENT:StartTouch( ent )
 				if ( GetCSConVarB( "minecraft_lavaigniteblocks", self.Owner ) == true) then
 					ent:Ignite(40,0)
 				end
-				if ( GetCSConVarB( "minecraft_lavaigniteblocks", self.Owner ) == false and ent:GetName() != "mcblock") then
+				if ( GetCSConVarB( "minecraft_lavaigniteblocks", self.Owner ) == false and ent:GetName() ~= "mcblock") then
 					ent:Ignite(40,0)
 				end
             end
@@ -162,7 +162,7 @@ function ENT:PostSpawn()
 	local t5 = self:GetNearbyBlock( 5,0,0,false );
 	local t6 = self:GetNearbyBlock( 6,0,0,false );
 	
-	if (t1 != nil and t1 != NULL) then
+	if (t1 ~= nil and t1 ~= NULL) then
 		if (t1:IsValid()) then
 			if (t1:GetClass() == "minecraft_block_waterized") then
 				if (t1.child > 0) then
@@ -174,7 +174,7 @@ function ENT:PostSpawn()
 			end
 		end
 	end
-	if (t2 != nil and t2 != NULL) then
+	if (t2 ~= nil and t2 ~= NULL) then
 		if (t2:IsValid()) then
 			if (t2:GetClass() == "minecraft_block_waterized") then
 				if (t2.child > 0) then
@@ -186,7 +186,7 @@ function ENT:PostSpawn()
 			end
 		end
 	end
-	if (t3 != nil and t3 != NULL) then
+	if (t3 ~= nil and t3 ~= NULL) then
 		if (t3:IsValid()) then
 			if (t3:GetClass() == "minecraft_block_waterized") then
 				if (t3.child > 0) then
@@ -198,7 +198,7 @@ function ENT:PostSpawn()
 			end
 		end
 	end
-	if (t4 != nil and t4 != NULL) then
+	if (t4 ~= nil and t4 ~= NULL) then
 		if (t4:IsValid()) then
 			if (t4:GetClass() == "minecraft_block_waterized") then
 				if (t4.child > 0) then
@@ -210,7 +210,7 @@ function ENT:PostSpawn()
 			end
 		end
 	end
-	if (t5 != nil and t5 != NULL) then
+	if (t5 ~= nil and t5 ~= NULL) then
 		if (t5:IsValid()) then
 			if (t5:GetClass() == "minecraft_block_waterized") then
 				if (t5.child > 0) then
@@ -222,7 +222,7 @@ function ENT:PostSpawn()
 			end
 		end
 	end
-	if (t6 != nil and t6 != NULL) then
+	if (t6 ~= nil and t6 ~= NULL) then
 		if (t6:IsValid()) then
 			if (t6:GetClass() == "minecraft_block_waterized") then
 				if (t6.child > 0) then

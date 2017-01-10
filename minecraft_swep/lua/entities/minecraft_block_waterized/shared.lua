@@ -48,8 +48,8 @@ function ENT:Think( )
 	--lava leaves residue, water vanishes instantly
 	if ((self.parent == nil or self.parent == NULL) and tonumber(self.child) > 0) then
 		if (self:GetNetworkedString("water") == "false") then
-			if (self.lavaresiduetime != nil) then
-				if (CurTime() > self.lavaresiduetime and self.lavaresiduetime != -1) then
+			if (self.lavaresiduetime ~= nil) then
+				if (CurTime() > self.lavaresiduetime and self.lavaresiduetime ~= -1) then
 					self:Remove();
 				end
 				if (self.lavaresiduetime == -1) then
@@ -71,25 +71,25 @@ function ENT:Think( )
 			--if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(self.child).."] with maxspread = "..tostring(self.maxspread).." is updating...") end
 			
 			local southblock = self:GetNearbyBlock(3,0,0,false)
-			if (southblock == nil and bottomBlock != nil and self.child < self.maxspread) then
+			if (southblock == nil and bottomBlock ~= nil and self.child < self.maxspread) then
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("water/lava is spreading... [south]") end
 				local temp = self:Spread( 3, self.maxspread );
 				check = true
 			end
 			local northblock = self:GetNearbyBlock(4,0,0,false)
-			if (northblock == nil and bottomBlock != nil and self.child < self.maxspread) then
+			if (northblock == nil and bottomBlock ~= nil and self.child < self.maxspread) then
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("water/lava is spreading... [north]") end
 				local temp = self:Spread( 4, self.maxspread );
 				check = true
 			end
 			local westblock = self:GetNearbyBlock(5,0,0,false)
-			if (westblock == nil and bottomBlock != nil and self.child < self.maxspread) then
+			if (westblock == nil and bottomBlock ~= nil and self.child < self.maxspread) then
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("water/lava is spreading... [west]") end
 				local temp = self:Spread( 5, self.maxspread );
 				check = true
 			end
 			local eastblock = self:GetNearbyBlock(6,0,0,false)
-			if (eastblock == nil and bottomBlock != nil and self.child < self.maxspread) then
+			if (eastblock == nil and bottomBlock ~= nil and self.child < self.maxspread) then
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("water/lava is spreading... [east]") end
 				local temp = self:Spread( 6, self.maxspread );
 				check = true
@@ -121,22 +121,22 @@ function ENT:Think( )
 			--water (source block) + lava (source block) creates obsidian, else it creates cobblestone
 			local topblock = self:GetNearbyBlock(1,0,0,false)
 			bottomblock = self:GetNearbyBlock(2,0,0,false)
-			if (topblock != NULL) then
+			if (topblock ~= NULL) then
 				self:ReplaceCheck( topblock )
 			end
-			if (bottomblock != NULL) then
+			if (bottomblock ~= NULL) then
 				self:ReplaceCheck( bottomblock )
 			end
-			if (northblock != NULL) then
+			if (northblock ~= NULL) then
 				self:ReplaceCheck( northblock )
 			end
-			if (eastblock != NULL) then
+			if (eastblock ~= NULL) then
 				self:ReplaceCheck( eastblock )
 			end
-			if (southblock != NULL) then
+			if (southblock ~= NULL) then
 				self:ReplaceCheck( southblock )
 			end
-			if (westblock != NULL) then
+			if (westblock ~= NULL) then
 				self:ReplaceCheck( westblock )
 			end
 		end
@@ -149,8 +149,8 @@ end
 --************************************************
 
 function ENT:ReplaceCheck( block2 ) --block1 is self!
-	if (block2 != nil) then
-		if (block2:GetClass() == "minecraft_block_waterized" and block2 != self) then
+	if (block2 ~= nil) then
+		if (block2:GetClass() == "minecraft_block_waterized" and block2 ~= self) then
 			if (block2:GetNWString("water") == "true" and self:GetNWString("water") == "false") then
 				--self is lava
 				--replace child lava blocks with cobblestone, and the lava "source block" (parent block) with obsidian
@@ -246,7 +246,7 @@ function ENT:Spread( onSide, maxspread )
 	
 	local ent = ents.Create( "minecraft_block_waterized" )
 			
-	if (ent != NULL) then
+	if (ent ~= NULL) then
 		local what = self:GetNetworkedString("water")
 		if (what == "true") then
 			ent:SetModel( "models/MCModelPack/blocks/water.mdl" )
@@ -326,11 +326,11 @@ function ENT:GetNearbyBlock( onSide, zmult, posmult, noself )
 		pos.y = pos.y + 36.5*posmult;
 	end
 	
-	if (zmult != 0) then
+	if (zmult ~= 0) then
 		pos.z = pos.z + 36.5*zmult
 	end
 	for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-		if ( v:IsValid() and v != self ) then
+		if ( v:IsValid() and v ~= self ) then
 			if ( v:GetClass() == "minecraft_block") then
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("[lava/water] found nearby block with ID = " .. tostring(v:GetBlockID())) end
 				return v;

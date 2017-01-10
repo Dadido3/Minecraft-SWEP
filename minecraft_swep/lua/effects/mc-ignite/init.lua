@@ -6,7 +6,7 @@ EFFECT.ent = 0
 
 function EFFECT:Init( data )
 	local ent = data:GetEntity()
-	if (ent != NULL) then
+	if (ent ~= NULL) then
 		self.ent = ent;
 		self.emit = 1
 	end

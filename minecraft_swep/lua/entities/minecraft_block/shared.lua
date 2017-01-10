@@ -31,7 +31,7 @@ function ENT:CheckPos( ID )
 		local pos = self:GetPos();
 		pos.z = pos.z + 18.25; --center
 		for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-			if ( v:IsValid() and v != self ) then
+			if ( v:IsValid() and v ~= self ) then
 				if ( v:GetClass() == "minecraft_block") then
 					if (CLIENT) then
 					if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(v:GetBlockID()) .. "] would overlap with ID = " .. tostring(v:GetBlockID())) end
@@ -39,7 +39,7 @@ function ENT:CheckPos( ID )
 					return false;
 				end
 				if ( v:GetClass() == "player") then
-					if (v:GetMoveType() != MOVETYPE_NOCLIP) then
+					if (v:GetMoveType() ~= MOVETYPE_NOCLIP) then
 						if (CLIENT) then
 						if (GetConVar("minecraft_debug"):GetBool()) then print("player is blocking the way!") end
 						end
@@ -59,9 +59,10 @@ end
 --*******************************************
 
 function ENT:GetNearbyBlock( direction )
+	-- Use MC.cubeFace. with { top, bottom, west, east, north, south }
+	
 	-- Deprecated direction numbers: 1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
 	-- Translating old numbers to the new variables: 1 --> top, 2 --> bottom, 3 --> north, 4 --> south, 5 --> east, 6 --> west
-	-- Use MC.cubeFace. with { top, bottom, west, east, north, south } instead
 	
 	local bounds = MC.cubeSize / 3 - 1
 	local pos = self:GetPos()
@@ -74,7 +75,7 @@ function ENT:GetNearbyBlock( direction )
 	
 	-- TODO: Find better method to find neighbours. Slabs are problematic
 	for k, v in pairs( ents.FindInBox( neighbourPos - Vector(bounds,bounds,bounds), neighbourPos + Vector(bounds,bounds,bounds) ) ) do
-		if IsValid( v ) and v != self then
+		if IsValid( v ) and v ~= self then
 			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" ) and v.stable then
 				--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 20 ) )
 				--cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 20 ), true )
@@ -111,7 +112,7 @@ function ignoreGrassTopBlock( ID )
 	return MC.BlockTypes[ID].grasGrowsBelow
 	
 	-- Old logic, remove when transferred
-	--if (ID2 != 55 and ID2 != 70 and ID2 != 56 and ID2 != 17 and ID2 != 82) and ( !(ID2 >= 59 and ID2 <= 68) and !(ID2 >= 72 and ID2 <= 76) and !(ID2 >= 95 and ID2 <= 106) and !(ID2 >= 87 and ID2 <= 91) and !(ID2 >= 109)) then
+	--if (ID2 ~= 55 and ID2 ~= 70 and ID2 ~= 56 and ID2 ~= 17 and ID2 ~= 82) and ( !(ID2 >= 59 and ID2 <= 68) and !(ID2 >= 72 and ID2 <= 76) and !(ID2 >= 95 and ID2 <= 106) and !(ID2 >= 87 and ID2 <= 91) and !(ID2 >= 109)) then
 	--	return true
 	--else 
 	--	return false
@@ -176,7 +177,7 @@ function ENT:Think( )
 		local stability = self:CalculateStability( top, bottom, north, south, east, west )
 		
 		-- If stability changed, update neighbours
-		if oldStability != stability then
+		if oldStability ~= stability then
 			self:SetStability( stability )
 			
 			--cldebugoverlay.EntityTextAtPosition( self.Owner, self:GetPos(), 0, "Stability: "..stability, 1 )
@@ -215,7 +216,7 @@ function ENT:Think( )
 		--intelligent grass blocks
 		if (ID == 2) then
 			local temp = self:GetNearbyBlock( MC.cubeFace.top )
-			if (temp != nil) then --if there is a block on top of me
+			if (temp ~= nil) then --if there is a block on top of me
 				local ID2 = 0;
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("["..tostring(ID).."] detected block with ID = "..tostring(ID2).." on top") end
 				--have to check for waterized blocks manually, because GetBlockID() doesn't seem to work properly
@@ -284,7 +285,7 @@ function ENT:Think( )
 				self:SetPos( sposbackup );
 				local temp2 = self:GetNearbyBlock( MC.cubeFace.bottom )
 				local check2 = true
-				if (temp2 != nil and temp2 != NULL) then
+				if (temp2 ~= nil and temp2 ~= NULL) then
 					if (temp2:GetBlockID() == ID) then
 						check2 = false
 					end
@@ -317,7 +318,7 @@ function ENT:Think( )
 		--TODO: add more
 		
 		--HACKHACK: temporary solution to keep blocks with nothing here from thinking
-		if (ID != 82 and ID != 2 and ID != 69) then
+		if (ID ~= 82 and ID ~= 2 and ID ~= 69) then
 			self:SetDoUpdate( false )
 		end
 	end
@@ -765,7 +766,7 @@ function ENT:BlockInit( ID , hitEntity )
 			local t4 = self:GetNearbyBlock( MC.cubeFace.south )
 			local t5 = self:GetNearbyBlock( MC.cubeFace.east )
 			local t6 = self:GetNearbyBlock( MC.cubeFace.west )
-			if (t1 != nil) then
+			if (t1 ~= nil) then
 				if (t1:GetBlockID() == ID) then
 					self:SetAngles( t1:GetAngles() )
 				end
@@ -891,8 +892,8 @@ function ENT:BlockInit( ID , hitEntity )
 		self.isSlabStacked = false
 		if (onSide == 1) then
 			local t1 = self:GetNearbyBlock(2);
-			if (t1 != nil) then
-				if (t1.isSlabStacked != nil) then
+			if (t1 ~= nil) then
+				if (t1.isSlabStacked ~= nil) then
 					if (t1.isSlabStacked == false) then
 						self:SetPos( self:GetPos() + Vector(0,0,-18.255) )
 						self.isSlabStacked = true

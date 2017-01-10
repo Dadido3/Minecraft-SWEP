@@ -65,7 +65,7 @@ include( 'shared.lua' )
 function AddDir(dir) -- Recursively adds everything in a directory to be downloaded by client
 	local files,folders = file.Find(dir.."/*", "GAME")
 	for _, fdir in pairs(folders) do
-		if fdir != ".svn" then -- Don't spam people with useless .svn folders
+		if fdir ~= ".svn" then -- Don't spam people with useless .svn folders
 			AddDir(dir.."/"..fdir, "GAME")
 		end
 	end

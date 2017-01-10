@@ -230,7 +230,7 @@ function openBlockMenu( ply, cmd, args )
 	local crashcount = 0
 	for k, v in pairs( ents.GetAll() ) do
         if IsValid( v ) then
-			if v:GetClass() != "minecraft_block" and v:GetClass() != "minecraft_block_waterized" and v:GetClass() != "mc_tnt" and v:GetClass() != "mc_cake" then
+			if v:GetClass() ~= "minecraft_block" and v:GetClass() ~= "minecraft_block_waterized" and v:GetClass() ~= "mc_tnt" and v:GetClass() ~= "mc_cake" then
 				crashcount = crashcount + 1
 			end
         end  
@@ -285,7 +285,7 @@ function openBlockMenu( ply, cmd, args )
 	mc_frame:MakePopup()
 	
 	-- Restore mouse position
-	if (mbackup.x != -1 and GetConVar("minecraft_menu_savemousepos"):GetBool()) then
+	if (mbackup.x ~= -1 and GetConVar("minecraft_menu_savemousepos"):GetBool()) then
 		gui.SetMousePos(mbackup.x,mbackup.y)
 	end
 end

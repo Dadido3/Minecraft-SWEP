@@ -107,7 +107,7 @@ function ENT:Explode()
 	util.Effect( "mc-explosion", effectdata, true, true )
 	util.BlastDamage( self, self, self:GetPos(), radius, GetConVar("minecraft_tnt_damage"):GetInt() )
 	
-	if (self:GetPlayer() != nil and SERVER) then
+	if (self:GetPlayer() ~= nil and SERVER) then
 		if (self:GetPlayer().GetInfoNum ~= nil) then
 			self:GetPlayer():ConCommand("cl_minecraft_blockcount ".. (self:GetPlayer():GetInfoNum("cl_minecraft_blockcount", 0))-1)
 		end

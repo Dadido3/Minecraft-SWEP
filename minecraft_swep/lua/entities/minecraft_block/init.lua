@@ -66,7 +66,7 @@ function ENT:RemoveSpecial()
 	
 	self:OnRemoveSpecial()
 	
-	if ( self.health != -1 and GetCSConVarB( "minecraft_particles", self:GetPlayer() ) ) then
+	if ( self.health ~= -1 and GetCSConVarB( "minecraft_particles", self:GetPlayer() ) ) then
 		--create particle effect
 		local effect = EffectData();
 		local pos = self:GetPos();
@@ -119,32 +119,32 @@ function ENT:PostSpawn ( ID )
 	local t5 = self:GetNearbyBlock( MC.cubeFace.east )
 	local t6 = self:GetNearbyBlock( MC.cubeFace.west )
 	
-	if (t1 != nil) then
+	if (t1 ~= nil) then
 		if (t1:IsValid()) then
 			t1:SetDoUpdate( true )
 		end
 	end
-	if (t2 != nil) then
+	if (t2 ~= nil) then
 		if (t2:IsValid()) then
 			t2:SetDoUpdate( true )
 		end
 	end
-	if (t3 != nil) then
+	if (t3 ~= nil) then
 		if (t3:IsValid()) then
 			t3:SetDoUpdate( true )
 		end
 	end
-	if (t4 != nil) then
+	if (t4 ~= nil) then
 		if (t4:IsValid()) then
 			t4:SetDoUpdate( true )
 		end
 	end
-	if (t5 != nil) then
+	if (t5 ~= nil) then
 		if (t5:IsValid()) then
 			t5:SetDoUpdate( true )
 		end
 	end
-	if (t6 != nil) then
+	if (t6 ~= nil) then
 		if (t6:IsValid()) then
 			t6:SetDoUpdate( true )
 		end
@@ -158,8 +158,8 @@ end
 --all blocks added to both these will get autodestroyed when the block they were placed on gets destroyed
 --TODO: why doesn't   !(blockID >= 135 and blockID <= 171)    work ???
 function notBlockToDestroy( blockID )
-	if ( blockID != 56 and blockID != 65 and blockID != 66 and blockID != 67 and blockID != 68 and blockID != 98 and blockID != 109 and blockID != 110
-		and blockID != 89 and blockID != 90 and blockID != 91) then
+	if ( blockID ~= 56 and blockID ~= 65 and blockID ~= 66 and blockID ~= 67 and blockID ~= 68 and blockID ~= 98 and blockID ~= 109 and blockID ~= 110
+		and blockID ~= 89 and blockID ~= 90 and blockID ~= 91) then
 		return true
 	else
 		return false
@@ -187,7 +187,7 @@ function ENT:OnRemoveSpecial( )
 	 
 	--test: spawn a water block if an ice block breaks
 	if (ID == 40) then
-		if (self.health <= 0 and self.health != -1 and self.health != -2) then --if we were killed by taking damage
+		if (self.health <= 0 and self.health ~= -1 and self.health ~= -2) then --if we were killed by taking damage
 			--if (GetConVar("minecraft_debug"):GetBool()) then print("spawning water block in place of ice block...") end
 			local ent = ents.Create( "minecraft_block_waterized" )
 			
@@ -215,7 +215,7 @@ function ENT:OnRemoveSpecial( )
 		end
 	end
 	
-	if (!GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health != -1) then
+	if (!GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health ~= -1) then
 		local hasSound = false;
 	
 		--grass

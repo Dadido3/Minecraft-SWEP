@@ -83,7 +83,7 @@ function ENT:RemoveSpecial()
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetNoDraw( true )
 	
-	if ( self.health != -1 ) then
+	if ( self.health ~= -1 ) then
 		--create particle effect
 		local effect = EffectData();
 		local pos = self:GetPos();
