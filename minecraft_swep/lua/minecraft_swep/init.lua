@@ -12,23 +12,33 @@ AddCSLuaFile( "sh_waterizer.lua" )
 
 -- #### Physic lag detection and countermeasure ####
 
-local function FreezeAllProps()
+local function FreezeOrDeleteBlocks()
 	for k, v in pairs( ents.FindByName( "mcblock" ) ) do
-		if IsValid( v ) then
-			local phys = v:GetPhysicsObject()
-			if IsValid( phys ) then
-				phys:Sleep()
+		if IsValid( v ) and not v.stable then
+			if math.random(10) == 1 then
+				-- Delete ever 10th block
+				v.Entity.health = -1
+				v:Remove()
+			--[[else
+				-- Put other blocks to sleep
+				local phys = v:GetPhysicsObject()
+				if IsValid( phys ) then
+					phys:Sleep()
+				end--]]
 			end
 		end
 	end
 end
 
 local Time = 0
-local TimerFreq = 0.5
+local Frequency = MC.physTimeoutFrequency
 local function TimerFunction()
 	
-	if os.clock() - Time > TimerFreq + MC.physTimeout then
-		FreezeAllProps()
+	local lag = ( os.clock() - Time ) - Frequency
+	
+	if lag > MC.physTimeout then
+		print("MC: Lag of " .. lag .. "s detected. Delete 10% of unstable blocks.")
+		FreezeOrDeleteBlocks()
 	end
 	
 	Time = os.clock()
@@ -37,6 +47,6 @@ end
 
 local function CreateTimers()
 	Time = os.clock()
-	timer.Create( "MC Phys-lag Detection", TimerFreq, 0, TimerFunction )
+	timer.Create( "MC_Lag_Watchdog", Frequency, 0, TimerFunction )
 end
-hook.Add( "Initialize", "MC Create timers", CreateTimers )
+hook.Add( "Initialize", "MC_Create_Timers", CreateTimers )

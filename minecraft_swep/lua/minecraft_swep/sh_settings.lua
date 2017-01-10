@@ -19,6 +19,7 @@ MC.refuseBuildByTeamDistance = 130		-- Distance under which building is denied
 MC.refuseUseToTeam = 3--TEAM_UNDEAD		-- The team which isn't allowed to use any MC items/blocks
 
 MC.physTimeout = 0.1					-- Freeze all blocks if the timeout is reached
+MC.physTimeoutFrequency = 0.1			-- Frequency of the watchdog timer
 
 -- #### BlockTypes ####
 
