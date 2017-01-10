@@ -17,18 +17,19 @@ local function FreezeAllProps()
 		if IsValid( v ) then
 			local phys = v:GetPhysicsObject()
 			if IsValid( phys ) then
-				phys:Sleep() 
+				phys:Sleep()
 			end
 		end
 	end		
 end
 
-local Time
+local Time = 0
 local TimerFreq = 1
 local function TimerFunction()
 	
 	if CurTime() - Time > TimerFreq + MC.physTimeout then
 		print( "Physics timeout!" )
+		FreezeAllProps()
 	end
 	
 	Time = CurTime()
