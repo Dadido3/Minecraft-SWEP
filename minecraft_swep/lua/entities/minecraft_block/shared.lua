@@ -955,7 +955,9 @@ end
 --*****************************************************************
 
 function ENT:PhysicsCollide( data, physobj )
-	if (data.HitEntity:IsWorld() or data.HitEntity:GetClass() == "minecraft_block" or data.HitEntity:GetClass() == "minecraft_block_waterized") then return end
+	local hitEntity = data.HitEntity
+	
+	if hitEntity:IsWorld() or hitEntity:GetClass() == "minecraft_block" or hitEntity:GetClass() == "minecraft_block_waterized" then return end
 	
 	blockType = MC.BlockTypes[self:GetBlockID()]
 	if !blockType then return end
