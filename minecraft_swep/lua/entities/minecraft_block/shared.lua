@@ -76,15 +76,15 @@ function ENT:GetNearbyBlock( direction )
 		searchBox = searchBox - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) )
 	end
 	
-	cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self) .. ", " .. self:GetBlockID(), 5 )
-	cldebugoverlay.Box( self.Owner, neighbourPos, -searchBox/2, searchBox/2, 5, Color( 0, 255, 0, 10 ) )
+	--cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self) .. ", " .. self:GetBlockID(), 5 )
+	--cldebugoverlay.Box( self.Owner, neighbourPos, -searchBox/2, searchBox/2, 5, Color( 0, 255, 0, 10 ) )
 	
 	for k, v in pairs( ents.FindInBox( neighbourPos - searchBox / 2, neighbourPos + searchBox / 2 ) ) do
 		if IsValid( v ) and v ~= self then
 			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" ) and v.stable then
-				cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 10 ) )
-				cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 10 ), true )
-				--if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self:self.GetBlockID()) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
+				--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 10 ) )
+				--cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 10 ), true )
+				--if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self:self:GetBlockID()) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
 				return v
 			end
 		end
@@ -748,7 +748,7 @@ function ENT:BlockInit( ID , hitEntity )
 	--auto rotation of glass panes, iron bars, portals, fence-2 if they are spawning touching already existing ones
 	if (ID == 59 or ID == 60 or ID == 61 or ID == 100) then
 		if (onBlock) then
-			if (hitEntity.dt.blockID == ID) then
+			if (hitEntity:GetBlockID() == ID) then
 				self:SetAngles( hitEntity:GetAngles() );
 			end
 		else
@@ -831,7 +831,7 @@ function ENT:BlockInit( ID , hitEntity )
 	end
 	
 	--flip stairs
-	if ( (ID == 45 or ID == 46 or ID == 47 or ID == 181) and (GetCSConVarB( "minecraft_flipstairs", self.Owner )) or onSide == 2) then
+	if (ID == 45 or ID == 46 or ID == 47 or ID == 181) and ((GetCSConVarB( "minecraft_flipstairs", self.Owner )) or onSide == 2) then
 		self:SetAngles( self:GetAngles() + Angle(0,0,180) )
 		self:SetPos( self:GetPos() + Vector(0,0,36.5) );
 	end
@@ -973,7 +973,7 @@ function ENT:PhysicsCollide( data, physobj )
 end
 
 function ENT:StartTouch( ent )
-	if (self.dt.blockID == 69) then
+	if (self:GetBlockID() == 69) then
 		ent:Ignite(5,0);
 	end
 end

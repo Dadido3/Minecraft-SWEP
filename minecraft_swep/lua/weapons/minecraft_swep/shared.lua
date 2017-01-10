@@ -613,15 +613,15 @@ function SWEP:MCSecondaryAttack()
 				end
 			end
 		end
-		self:GetOwner():ConCommand( "cl_minecraft_blockcount " .. ( playerBlockCount + 1 ) )
-		if playerBlockCount > GetConVar("minecraft_swep_blocklimit"):GetInt() or playerBlockCount > MC.playerBlockLimit then
+		if playerBlockCount > GetConVar("minecraft_swep_blocklimit"):GetInt() or playerBlockCount >= MC.playerBlockLimit then
 			self:GetOwner():PrintMessage( HUD_PRINTCENTER, MC.strings.reachedPlayerBlockLimit )
 			return
 		end
-		if globalBlockCount > MC.globalBlockLimit then
+		if globalBlockCount >= MC.globalBlockLimit then
 			self:GetOwner():PrintMessage( HUD_PRINTCENTER, MC.strings.reachedGlobalBlockLimit )
 			return
 		end
+		self:GetOwner():ConCommand( "cl_minecraft_blockcount " .. ( playerBlockCount + 1 ) )
 	end
 	
 	-- Get eye trace
@@ -646,7 +646,7 @@ function SWEP:MCSecondaryAttack()
 	local tr = self:GetOwner():GetEyeTrace()
 	local startpos = self:GetOwner():GetShootPos()
 	local isBlock = false
-	
+	-- TODO: Continue to rewrite this mess from here
 	local tracedata = {}
 	tracedata.start = startpos
 	tracedata.endpos = tr.HitPos + tr.HitNormal * 20
@@ -1023,9 +1023,9 @@ end
 --*******************************************************--
 
 function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
-	if !MC.BlockTypes[blocktype] then return end
+	if not MC.BlockTypes[blocktype] then return end
 	
-	ent = ents.Create( "minecraft_block" ) 
+	local ent = ents.Create( "minecraft_block" ) 
 	if not IsValid(ent) then print("SpawnMinecraftBlock() ent is not valid!!!") return end
 	ent:SetPlayer( ply )
 	
