@@ -1,25 +1,22 @@
-MC = {}
-
 -- #### Strings ####
 MC.strings = {}
 MC.strings.reachedPlayerBlockLimit =	"You have reached your block limit!"
 MC.strings.reachedGlobalBlockLimit =	"You have reached the global block limit!"
 
 -- #### Settings ####
-MC.healthMul = 1.0				-- Global health multiplier for all blocks
-MC.buildDistance = 140			-- Distance where blocks can be placed
-MC.deleteDistance = 130			-- Distance where blocks can be deleted
-MC.globalBlockLimit = 2048		-- Global block limit
-MC.playerBlockLimit = 200		-- Block limit per player
-MC.shouldDropOnDie = false		-- Player will drop SWEP on death
-
+MC.healthMul = 1.0						-- Global health multiplier for all blocks
+MC.buildDistance = 140					-- Distance where blocks can be placed
+MC.deleteDistance = 130					-- Distance where blocks can be deleted
+MC.globalBlockLimit = 2048				-- Global block limit
+MC.playerBlockLimit = 200				-- Block limit per player
+MC.shouldDropOnDie = false				-- Player will drop SWEP on death
 MC.onlyDeleteMinecraftBlocks = true		-- Only delete minecraft blocks, doh
 
 -- #### BlockTypes ####
 
 -- Stability settings
-local bondToWorld = { 0.0, 10.0, 1.0 } -- Strength of the connection from the block to the world. Vector defined as { Top, Bottom, Sideways }
-local bondReduction = { 2.0, 0.5, 1.5 } -- Reduction of the strength of the connection from a block to a block. Vector defined as { Top, Bottom, Sideways }
+local bondToWorld = { 0.0, 10.0, 5.0 }	-- Strength of the connection from the block to the world. Vector defined as { Top, Bottom, Sideways }
+local bondReduction = { 2.0, 0.5, 1.5 }	-- Reduction of the strength of the connection from a block to a block. Vector defined as { Top, Bottom, Sideways }
 
 -- Sound tables
 local soundsGravel 	= { Sound("minecraft/gravel1.wav"), Sound("minecraft/gravel2.wav"), Sound("minecraft/gravel3.wav"), Sound("minecraft/gravel4.wav") }

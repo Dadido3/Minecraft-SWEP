@@ -1,0 +1,1 @@
+include("minecraft_swep/sh_init.lua")
