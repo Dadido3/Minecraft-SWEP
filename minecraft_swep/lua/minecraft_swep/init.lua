@@ -20,24 +20,26 @@ local function FreezeAllProps()
 				phys:Sleep()
 			end
 		end
-	end		
+	end
 end
 
 local Time = 0
-local TimerFreq = 1
+local TimerFreq = 0.5
 local function TimerFunction()
 	
-	if CurTime() - Time > TimerFreq + MC.physTimeout then
+	print( os.clock() - Time )
+	
+	if os.clock() - Time > TimerFreq + MC.physTimeout then
 		print( "Physics timeout!" )
 		FreezeAllProps()
 	end
 	
-	Time = CurTime()
+	Time = os.clock()
 	
 end
 
 local function CreateTimers()
-	Time = CurTime()
+	Time = os.clock()
 	timer.Create( "MC Phys-lag Detection", TimerFreq, 0, TimerFunction )
 end
 hook.Add( "Initialize", "MC Create timers", CreateTimers )
