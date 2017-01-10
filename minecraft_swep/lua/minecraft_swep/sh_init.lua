@@ -46,6 +46,58 @@ function MC.GetCubeDirection( vector )
 	return nil
 end
 
+-- #### Flat array for storing chunks (Containing stable block entities) ####
+-- #### NOT IN USE YET ####
+--[[local function newFlatArray(X, Y, Z, Xo, Yo, Zo)
+	local MT = {}
+	MT.__index = MT
+	
+	if not(X and Y and Z and Xo and Yo and Zo) then return nil end
+	
+	local XY = X * Y
+	
+	function MT:Get(x, y, z)
+		x, y, z = x + Xo, y + Yo, z + Zo
+		if x > X or y > Y or z > Z or x < 1 or y < 1 or z < 1 then return nil end
+		local k = (x) + X * (y - 1) + XY * (z - 1)
+		return self[k]
+	end
+	
+	function MT:Add(x, y, z, v)
+		x, y, z = x + Xo, y + Yo, z + Zo
+		if x > X or y > Y or z > Z or x < 1 or y < 1 or z < 1 then return nil end
+		local k = x + X * (y - 1) + XY * (z - 1)
+		
+		self[k] = self[k] or {}
+		return table.insert(self[k], v)
+	end
+	
+	function MT:Remove(x, y, z, v)
+		x, y, z = x + Xo, y + Yo, z + Zo
+		if x > X or y > Y or z > Z or x < 1 or y < 1 or z < 1 then return nil end
+		local k = x + X * (y - 1) + XY * (z - 1)
+		
+		if self[k] == nil then return nil end
+		for i, entry in ipairs(self[k]) do
+			if entry == v then
+				table.remove(self[k], i)
+			end
+		end
+		
+		if not next(self[k]) then
+			self[k] = nil
+		end
+		
+		return true
+	end
+	
+	return setmetatable({}, MT)
+end
+
+MC.chunkSize = 8
+MC.chunkArray = test or newFlatArray(256, 256, 256, 128, 128, 128) -- Around 8x8x8 blocks per chunk
+--]]
+
 -- #### Debug stuff ####
 cldebugoverlay = {}
 function cldebugoverlay.Axis( player, origin, ang, size, lifetime, ignoreZ )
