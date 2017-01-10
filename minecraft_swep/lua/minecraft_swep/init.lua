@@ -24,9 +24,10 @@ local function FreezeAllProps()
 end
 
 local Time
+local TimerFreq = 1
 local function TimerFunction()
 	
-	if CurTime() - Time > MC.physTimeout then
+	if CurTime() - Time > TimerFreq + MC.physTimeout then
 		print( "Physics timeout!" )
 	end
 	
@@ -36,6 +37,6 @@ end
 
 local function CreateTimers()
 	Time = CurTime()
-	timer.Create( "MC Phys-lag Detection", 1, 0, TimerFunction )
+	timer.Create( "MC Phys-lag Detection", TimerFreq, 0, TimerFunction )
 end
 hook.Add( "Initialize", "MC Create timers", CreateTimers )
