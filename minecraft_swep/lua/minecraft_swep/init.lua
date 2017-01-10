@@ -30,7 +30,6 @@ local function TimerFunction()
 	print( os.clock() - Time )
 	
 	if os.clock() - Time > TimerFreq + MC.physTimeout then
-		print( "Physics timeout!" )
 		FreezeAllProps()
 	end
 	
