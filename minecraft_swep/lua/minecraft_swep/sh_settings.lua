@@ -3,7 +3,7 @@ MC.strings = {}
 MC.strings.reachedPlayerBlockLimit =	"You have reached your block limit!"
 MC.strings.reachedGlobalBlockLimit =	"You have reached the global block limit!"
 MC.strings.refuseBuildByTeam =			"You are too close to a zombie!"
-MC.strings.refuseUseToTeam =			"You try to operate the object, but you are not able to! You dud!"
+MC.strings.refuseUseToTeam =			"You try to operate the object, but you are not able! You dud!"
 
 -- #### Settings ####
 MC.healthMul = 1.0						-- Global health multiplier for all blocks
@@ -36,9 +36,9 @@ local soundsSand 	= { Sound("minecraft/sand1.wav"), Sound("minecraft/sand2.wav")
 -- Materials
 local matGravel		= { name = "Gravel",	baseHealth = 100,	soundTable = soundsGravel }
 local matGrass		= { name = "Grass",		baseHealth = 100,	soundTable = soundsGrass }
-local matStone		= { name = "Stone",		baseHealth = 350,	soundTable = soundsStone }
+local matStone		= { name = "Stone",		baseHealth = 300,	soundTable = soundsStone }
 local matWood		= { name = "Wood",		baseHealth = 200,	soundTable = soundsWood }
-local matMetal		= { name = "Metal",		baseHealth = 600,	soundTable = soundsStone }
+local matMetal		= { name = "Metal",		baseHealth = 400,	soundTable = soundsStone }
 local matSnow		= { name = "Snow",		baseHealth = 50,	soundTable = soundsSnow,	bondReduction = { 5.0, 1.0, 5.0 } }
 local matIce		= { name = "Ice",		baseHealth = 50,	soundTable = soundsStone,	transparent = true }
 local matWater		= { name = "Water",		baseHealth = -1,	soundTable = soundsStone,	transparent = true }
@@ -46,7 +46,7 @@ local matLava		= { name = "Lava",		baseHealth = -1,	soundTable = soundsStone }
 local matCloth		= { name = "Cloth",		baseHealth = 100,	soundTable = soundsCloth }
 local matSand		= { name = "Sand",		baseHealth = 100,	soundTable = soundsSand,	bondReduction = { 10.0, 1.0, 10.0 } }
 local matGlass		= { name = "Glass",		baseHealth = 50,	soundTable = soundsStone,	grasGrowsBelow = true,	transparent = true }
-local matObsidian	= { name = "Obsidian",	baseHealth = 1000,	soundTable = soundsStone }
+local matObsidian	= { name = "Obsidian",	baseHealth = 800,	soundTable = soundsStone }
 local matBedrock	= { name = "Bedrock",	baseHealth = -1,	soundTable = soundsStone }
 local matSponge		= { name = "Sponge",	baseHealth = 50,	soundTable = soundsCloth }
 local matOrganic	= { name = "Organic",	baseHealth = 50,	soundTable = soundsGrass }
