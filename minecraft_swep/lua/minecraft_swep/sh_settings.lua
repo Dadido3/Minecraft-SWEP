@@ -36,9 +36,9 @@ local soundsSand 	= { Sound("minecraft/sand1.wav"), Sound("minecraft/sand2.wav")
 -- Materials
 local matGravel		= { name = "Gravel",	baseHealth = 100,	soundTable = soundsGravel }
 local matGrass		= { name = "Grass",		baseHealth = 100,	soundTable = soundsGrass }
-local matStone		= { name = "Stone",		baseHealth = 400,	soundTable = soundsStone }
+local matStone		= { name = "Stone",		baseHealth = 350,	soundTable = soundsStone }
 local matWood		= { name = "Wood",		baseHealth = 200,	soundTable = soundsWood }
-local matMetal		= { name = "Metal",		baseHealth = 800,	soundTable = soundsStone }
+local matMetal		= { name = "Metal",		baseHealth = 600,	soundTable = soundsStone }
 local matSnow		= { name = "Snow",		baseHealth = 50,	soundTable = soundsSnow,	bondReduction = { 5.0, 1.0, 5.0 } }
 local matIce		= { name = "Ice",		baseHealth = 50,	soundTable = soundsStone,	transparent = true }
 local matWater		= { name = "Water",		baseHealth = -1,	soundTable = soundsStone,	transparent = true }
@@ -102,7 +102,7 @@ addBlock(   9, "models/mcmodelpack/blocks/stone.mdl"					, { } )
 addBlock(  10, "models/mcmodelpack/blocks/ore.mdl"						, { } )
 addBlock(  11, "models/mcmodelpack/blocks/stoneslabs.mdl"				, { class = classSlab } )
 addBlock(  12, "models/mcmodelpack/blocks/stonebrick.mdl"				, { } )
-addBlock(  13, "models/mcmodelpack/blocks/obsidian.mdl"					, { material = matObsidian } )
+--addBlock(  13, "models/mcmodelpack/blocks/obsidian.mdl"					, { material = matObsidian } )
 --addBlock(  14, "models/mcmodelpack/blocks/bedrock.mdl"					, { material = matBedrock } )
 addBlock(  15, "models/mcmodelpack/blocks/brick.mdl"					, { } )
 addBlock(  16, "models/mcmodelpack/blocks/solidblock.mdl"				, { material = matMetal } )
@@ -130,7 +130,7 @@ addBlock(  34, "models/mcmodelpack/blocks/pumpkin.mdl"					, { material = matOrg
 addBlock(  38, "models/mcmodelpack/blocks/leaves.mdl"					, { material = matOrganic } )
 --addBlock(  39, "models/mcmodelpack/blocks/tnt.mdl"						, { } )
 addBlock(  40, "models/mcmodelpack/blocks/ice.mdl"						, { material = matIce } )
-addBlock(  41, "models/mcmodelpack/blocks/water.mdl"					, { material = matWater } )
+--addBlock(  41, "models/mcmodelpack/blocks/water.mdl"					, { material = matWater } )
 --addBlock(  42, "models/mcmodelpack/blocks/lava.mdl"						, { material = matLava } )
 --addBlock(  43, "models/mcmodelpack/blocks/nullblock.mdl"				, { } )
 --addBlock(  44, "models/mcmodelpack/other_blocks/piston.mdl"				, { material = matStone, } )
@@ -158,7 +158,7 @@ addBlock(  63, "models/mcmodelpack/other_blocks/door-iron.mdl"			, { material = 
 addBlock(  66, "models/mcmodelpack/entities/torch.mdl"					, { material = matWood, grasGrowsBelow = true, noCollide = true } )
 --addBlock(  67, "models/mcmodelpack/entities/torch-redstone.mdl"			, { material = matWood, grasGrowsBelow = true } )
 --addBlock(  68, "models/mcmodelpack/entities/lever.mdl"					, { material = matWood, grasGrowsBelow = true } )
-addBlock(  69, "models/mcmodelpack/entities/fire.mdl"					, { material = matFire, grasGrowsBelow = true, ignitePlayer = true } )
+--addBlock(  69, "models/mcmodelpack/entities/fire.mdl"					, { material = matFire, grasGrowsBelow = true, ignitePlayer = true } )
 --addBlock(  70, "models/mcmodelpack/other_blocks/decoration.mdl"			, { material = matGrass } )
 --addBlock(  71, "models/mcmodelpack/other_blocks/crops.mdl"				, { material = matGrass } )
 addBlock(  72, "models/mcmodelpack/other_blocks/ladder.mdl"				, { material = matWood } )
