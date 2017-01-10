@@ -26,31 +26,26 @@ end
 --*******************************************
 
 function ENT:CheckPos( ID )
-	if MC.BlockTypes[ID].noCollide == false then --not for torches, levers, ladders, vines, buttons, tripwires
-		local bounds = 16;
-		local pos = self:GetPos();
-		pos.z = pos.z + 18.25; --center
-		for k, v in pairs( ents.FindInBox( pos + Vector(-bounds,-bounds,-bounds), pos + Vector(bounds,bounds,bounds) ) ) do
-			if ( v:IsValid() and v ~= self ) then
-				if ( v:GetClass() == "minecraft_block") then
-					if (CLIENT) then
-					if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(v:GetBlockID()) .. "] would overlap with ID = " .. tostring(v:GetBlockID())) end
-					end
-					return false;
-				end
-				if ( v:GetClass() == "player") then
-					if (v:GetMoveType() ~= MOVETYPE_NOCLIP) then
-						if (CLIENT) then
-						if (GetConVar("minecraft_debug"):GetBool()) then print("player is blocking the way!") end
-						end
-						return false
-					else
-						return true
-					end
-				end
+	local blockType = MC.BlockTypes[ID]
+	if blockType.noCollide then return true end
+	
+	local pos = self:GetPos()
+	local posCenter = pos + ( Vector( 0, 0, 0.5 ) - Vector( 0, 0, 1 - blockType.height ) / 2 ) * MC.cubeSize
+	local searchBox = Vector( 1, 1, blockType.height ) * MC.cubeSize - Vector( 3, 3, 3 )
+	
+	--cldebugoverlay.Box( self.Owner, posCenter, -searchBox / 2, searchBox / 2, 5, Color( 255, 255, 0, 127 ) )
+	
+	for k, v in pairs( ents.FindInBox( posCenter - searchBox / 2, posCenter + searchBox / 2 ) ) do
+		if IsValid( v ) and v ~= self then
+			local class = v:GetClass()
+			if class == "minecraft_block" then
+				return false
+			elseif class == "player" and v:GetMoveType() ~= MOVETYPE_NOCLIP then
+				return false
 			end
-		end	
+		end
 	end
+	
 	return true
 end
 
@@ -64,21 +59,31 @@ function ENT:GetNearbyBlock( direction )
 	-- Deprecated direction numbers: 1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
 	-- Translating old numbers to the new variables: 1 --> top, 2 --> bottom, 3 --> north, 4 --> south, 5 --> east, 6 --> west
 	
-	local bounds = MC.cubeSize / 3 - 1
 	local pos = self:GetPos()
-	local posCenter = pos + Vector(0,0,0.5) * MC.cubeSize
+	local posCenter = pos + Vector( 0, 0, 0.5 ) * MC.cubeSize
+	local normal = MC.cubeFaceNormal[direction]
+	local normalAbs = Vector( math.abs( normal.x ), math.abs( normal.y ), math.abs( normal.z ) )
+	local searchBox = ( Vector( 1, 1, 1 ) - normalAbs * 0.5 ) * MC.cubeSize - Vector( 3, 3, 3 )
+	local neighbourPos = posCenter + normal * MC.cubeSize * 3 / 4
 	
-	local neighbourPos = posCenter + MC.cubeFaceNormal[direction] * MC.cubeSize / 2
+	-- Consider block height, and move top searchBox accordingly
+	if direction == MC.cubeFace.top then
+		neighbourPos = neighbourPos - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) )
+	end
+	-- also scale and move the searchBox for the sides accordingly
+	if direction == MC.cubeFace.west or direction == MC.cubeFace.east or direction == MC.cubeFace.north or direction == MC.cubeFace.south then
+		neighbourPos = neighbourPos - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) / 2 )
+		searchBox = searchBox - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) )
+	end
 	
-	--cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self), 5 )
-	--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 5, Color( 0, 255, 0, 20 ) )
+	cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self) .. ", " .. self:GetBlockID(), 5 )
+	cldebugoverlay.Box( self.Owner, neighbourPos, -searchBox/2, searchBox/2, 5, Color( 0, 255, 0, 10 ) )
 	
-	-- TODO: Find better method to find neighbours. Slabs are problematic
-	for k, v in pairs( ents.FindInBox( neighbourPos - Vector(bounds,bounds,bounds), neighbourPos + Vector(bounds,bounds,bounds) ) ) do
+	for k, v in pairs( ents.FindInBox( neighbourPos - searchBox / 2, neighbourPos + searchBox / 2 ) ) do
 		if IsValid( v ) and v ~= self then
 			if ( v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" ) and v.stable then
-				--cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 20 ) )
-				--cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 20 ), true )
+				cldebugoverlay.Box( self.Owner, neighbourPos, -Vector(bounds,bounds,bounds), Vector(bounds,bounds,bounds), 7, Color( 255, 0, 0, 10 ) )
+				cldebugoverlay.Line( self.Owner, posCenter + Vector(5,5,5), neighbourPos, 7, Color( 255, 0, 0, 10 ), true )
 				--if (GetConVar("minecraft_debug"):GetBool()) then print("[" ..tostring(self:self.GetBlockID()) .. "] found nearby block with ID = " .. tostring(v:GetBlockID())) end
 				return v
 			end
@@ -105,19 +110,6 @@ end
 --*******************************************
 --					Think 
 --*******************************************
-
---all blockIDs in here will be ignored by grass blocks (won't change to dirt)
-function ignoreGrassTopBlock( ID )
-	
-	return MC.BlockTypes[ID].grasGrowsBelow
-	
-	-- Old logic, remove when transferred
-	--if (ID2 ~= 55 and ID2 ~= 70 and ID2 ~= 56 and ID2 ~= 17 and ID2 ~= 82) and ( !(ID2 >= 59 and ID2 <= 68) and !(ID2 >= 72 and ID2 <= 76) and !(ID2 >= 95 and ID2 <= 106) and !(ID2 >= 87 and ID2 <= 91) and !(ID2 >= 109)) then
-	--	return true
-	--else 
-	--	return false
-	--end
-end
 
 function ENT:CalculateStability( top, bottom, west, east, north, south )
 	local side = {west, east, north, south}
@@ -235,7 +227,7 @@ function ENT:Think( )
 					if ( ID2 == 56 or ID2 == 17 ) then
 						self:SetSkin( 1 );
 					else
-						if ( ignoreGrassTopBlock(ID2) and check) then
+						if MC.BlockTypes[ID].grasGrowsBelow and check then
 							self:SetModel( "models/MCModelPack/blocks/dirt.mdl" );
 							self:SetBlockID( 1 )
 						

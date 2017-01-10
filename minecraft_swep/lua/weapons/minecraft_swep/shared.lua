@@ -382,14 +382,14 @@ function SWEP:Think()
 		if ( GetCSConVarB( "cl_minecraft_removeallblocks", self:GetOwner() ) ) then
 			if (!game.SinglePlayer()) then
 				for k, v in pairs( ents.FindByName( "mcblock*" ) ) do
-					if ( v:IsValid() and (v:GetPlayer() == self:GetOwner()) ) then
+					if IsValid( v ) and (v:GetPlayer() == self:GetOwner()) then
 						v.Entity.health = -1
 						v:Remove()
 					end
 				end	
 			else
 				for k, v in pairs( ents.GetAll() ) do
-					if ( IsValid(v) and (v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" or v:GetClass() == "mc_tnt" or v:GetClass() == "mc_cake") ) then
+					if ( IsValid( v ) and (v:GetClass() == "minecraft_block" or v:GetClass() == "minecraft_block_waterized" or v:GetClass() == "mc_tnt" or v:GetClass() == "mc_cake") ) then
 						v.Entity.health = -1
 						v:Remove()
 					end
@@ -399,15 +399,11 @@ function SWEP:Think()
 		end
 		
 		if ( GetCSConVarB( "cl_minecraft_removeallselectedblocks", self:GetOwner() ) ) then
-			local selectedmodel;
-			for k,v in pairs( MC.BlockTypes ) do
-				if (v.blockID == GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
-					selectedmodel = string.lower( v.model );
-				end
-			end
+			local selectedmodel = MC.BlockTypes[GetCSConVarI( "minecraft_blocktype", self:GetOwner() )].model
 			local selectedskin = GetCSConVarI( "minecraft_blockskin", self:GetOwner() )
 			for k, v in pairs( ents.FindByName( "mcblock" ) ) do
-				if ( v:IsValid() ) then
+				if IsValid( v ) then
+					print(v:GetModel(), v:GetSkin())
 					if ( v:GetPlayer() == self:GetOwner() or game.SinglePlayer() ) then
 						if v:GetModel() == selectedmodel then
 							if v:GetSkin() == selectedskin then
