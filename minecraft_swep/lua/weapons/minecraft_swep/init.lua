@@ -31,18 +31,6 @@ if (SERVER) then
 	CreateConVar( "minecraft_swep_blocklimit", "2048", { FCVAR_REPLICATED, FCVAR_ARCHIVE } )
 	CreateConVar( "minecraft_swep_enable_water_spread", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE } )
 	
-	--delete all my blocks on disconnect
-	local function MCPlayerDisconnect( ply )
-		for k, v in pairs( ents.FindByName( "mcblock*" ) ) do
-			if ( v:IsValid() and v:GetPlayer() == ply ) then
-				v.Entity.health = -1
-				v.Entity.simpleRemove = true
-				v:Remove()
-			end
-		end	
-	end
-	hook.Add( "PlayerDisconnected", "playerdisconnected", MCPlayerDisconnect )
-	
 	CreateConVar( "minecraft_swep_blacklist", "", { FCVAR_REPLICATED, FCVAR_ARCHIVE } )
 end
 

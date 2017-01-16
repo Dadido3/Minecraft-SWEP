@@ -186,6 +186,7 @@ function ENT:Think( )
 			-- Unfreeze entity if unstable
 			if stability <= 0.0 then
 				self.stable = false
+				self:SetPlayer( nil )
 				self:SetModelScale( 0.99 )
 				self:Activate()
 				local phys = self:GetPhysicsObject()

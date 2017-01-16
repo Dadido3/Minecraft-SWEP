@@ -11,11 +11,12 @@
 --********************************--
 
 function GetCSConVarF( convarname, ply)
-	if ( ply == nil or ply == NULL ) then
+	if not IsValid( ply ) then
 		if ( game.SinglePlayer() ) then
 			return ( GetConVar(convarname):GetFloat() )
 		else
 			print("Minecraft SWEP: GetCSConVarF() ply is nil!!!")
+			--print(debug.traceback())
 			return 0
 		end
 	end
@@ -27,11 +28,12 @@ function GetCSConVarF( convarname, ply)
 end
 
 function GetCSConVarB( convarname, ply)
-	if ( ply == nil or ply == NULL ) then
+	if not IsValid( ply ) then
 		if ( game.SinglePlayer() ) then
 			return ( GetConVar(convarname):GetFloat() == 1 )
 		else
 			print("Minecraft SWEP: GetCSConVarB() ply is nil!!!")
+			--print(debug.traceback())
 			return false
 		end
 	end
@@ -43,11 +45,12 @@ function GetCSConVarB( convarname, ply)
 end
 
 function GetCSConVarI( convarname, ply)
-	if ( ply == nil or ply == NULL ) then
+	if not IsValid( ply ) then
 		if ( game.SinglePlayer() ) then
 			return ( GetConVar(convarname):GetInt() )
 		else
 			print("Minecraft SWEP: GetCSConVarI() ply is nil!!!")
+			--print(debug.traceback())
 			return 0
 		end
 	end
@@ -866,7 +869,7 @@ function SWEP:MCPrimaryAttack()
 	local target = trace.Entity
 	local distvec = trace.HitPos - self.Owner:GetShootPos()
 	local distance = distvec:Length()
-	if !IsValid( target ) then return end
+	if not IsValid( target ) then return end
 	local targetClass = target:GetClass()
 	
 	-- Check distance
@@ -895,7 +898,7 @@ function SWEP:MCPrimaryAttack()
 	if trace.HitNonWorld then -- if you hit an entity
 		if targetClass == "minecraft_block" or targetClass == "mc_tnt" or targetClass == "mc_cake" or targetClass == "minecraft_block_waterized" then
 			target.health = -2 --change -2 to -1 to disable particle effects and sounds on block destroy
-			if target:GetPlayer() == self:GetOwner() then
+			if not IsValid( target:GetPlayer() ) or target:GetPlayer() == self:GetOwner() then
 				--this is a minecraft block and we own it
 				if targetClass == "minecraft_block" then
 					target:RemoveSpecial()

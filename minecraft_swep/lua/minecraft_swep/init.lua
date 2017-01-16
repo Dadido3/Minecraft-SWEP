@@ -50,3 +50,23 @@ local function CreateTimers()
 	timer.Create( "MC_Lag_Watchdog", Frequency, 0, TimerFunction )
 end
 hook.Add( "Initialize", "MC_Create_Timers", CreateTimers )
+
+-- When a player dies, remove ownership of all his blocks
+local function OnPlayerDies( victim, inflictor, attacker )
+	for k, v in pairs( ents.FindByName( "mcblock" ) ) do
+		if IsValid( v ) and v:GetPlayer() == victim then
+			v:SetPlayer( nil )
+		end
+	end
+end
+hook.Add( "PlayerDeath", "minecraft_swep_OnPlayerDies", OnPlayerDies )
+
+-- When a player disconnects, remove ownership of all his blocks
+local function OnPlayerDisconnects( ply )
+	for k, v in pairs( ents.FindByName( "mcblock" ) ) do
+		if IsValid( v ) and v:GetPlayer() == ply then
+			v:SetPlayer( nil )
+		end
+	end
+end
+hook.Add( "PlayerDisconnected", "minecraft_swep_OnPlayerDisconnects", OnPlayerDisconnects )

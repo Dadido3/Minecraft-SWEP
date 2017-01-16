@@ -176,10 +176,10 @@ function orBlockToDestroy( blockID )
 end
 
 function ENT:OnRemoveSpecial( )
-	if (self.spawned == false) then return end
-	if (self:GetPlayer() == "NULL" or self:GetPlayer() == nil) then return end
-	if (self.simpleRemove == true) then return end --to get rid of NULL entity bugs because self:GetPlayer = "Player [NULL]"
-		
+	if self.spawned == false then return end
+	if not IsValid( self:GetPlayer() ) then return end
+	if self.simpleRemove == true then return end --to get rid of NULL entity bugs because self:GetPlayer = "Player [NULL]"
+	
 	local ID = self:GetBlockID();
 	--if (GetConVar("minecraft_debug"):GetBool()) then print("block with ID = " .. tostring(ID) .. " removed!") end
 	 
@@ -215,7 +215,7 @@ function ENT:OnRemoveSpecial( )
 		end
 	end
 	
-	if (!GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health ~= -1) then
+	if not IsValid( self:GetPlayer() ) or ( not GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health ~= -1) then
 		local hasSound = false;
 	
 		--grass
