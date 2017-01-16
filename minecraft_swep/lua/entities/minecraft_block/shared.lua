@@ -99,7 +99,7 @@ function ENT:GetNearbyBlock( direction )
 	--cldebugoverlay.Line( self.Owner, tracedata.start, tracedata.endpos, 5, Color( 0, 0, 255 ), true )
 	
 	local trace = util.TraceLine( tracedata )
-	if trace.HitWorld then
+	if trace.HitWorld and not trace.HitNoDraw and not trace.HitSky then
 		--cldebugoverlay.Sphere( self.Owner, trace.HitPos, 5, 10, Color( 255, 255, 255 ), true )
 		return NULL
 	else
