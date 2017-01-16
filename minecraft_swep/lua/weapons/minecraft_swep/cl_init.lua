@@ -641,8 +641,8 @@ CreateClientConVar( "minecraft_blockskin", "0", true, true )
 
 CreateClientConVar( "minecraft_disablesounds", "0", true, true )
 --CreateClientConVar( "minecraft_distancelimit", "1", true, true )
-CreateClientConVar( "minecraft_blockhealth", "101", true, true )
-CreateClientConVar( "minecraft_blockhealth_auto", "1", true, true )
+--CreateClientConVar( "minecraft_blockhealth", "101", true, true )
+--CreateClientConVar( "minecraft_blockhealth_auto", "1", true, true )
 
 CreateClientConVar( "minecraft_spawntype", "2", false, true )
 CreateClientConVar( "minecraft_swapattack", "0", true, true )

@@ -193,7 +193,7 @@ function ENT:OnRemoveSpecial( )
 	self.stable = false
 	
 	--test: spawn a water block if an ice block breaks
-	if (ID == 40) then
+	--[[if (ID == 40) then
 		if (self.health <= 0 and self.health ~= -1 and self.health ~= -2) then --if we were killed by taking damage
 			--if (GetConVar("minecraft_debug"):GetBool()) then print("spawning water block in place of ice block...") end
 			local ent = ents.Create( "minecraft_block_waterized" )
@@ -220,7 +220,7 @@ function ENT:OnRemoveSpecial( )
 			--if (GetConVar("minecraft_debug"):GetBool()) then ent:SetColor(255,0,0,255) end
 			ent:Spawn()
 		end
-	end
+	end--]]
 	
 	if not IsValid( self:GetPlayer() ) or ( not GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health ~= -1) then
 		local hasSound = false;
@@ -366,4 +366,3 @@ function ENT:OnRemoveSpecial( )
 		end
 	end
 end
-
