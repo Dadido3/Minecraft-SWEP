@@ -29,20 +29,27 @@ function ENT:CheckPos( ID )
 	local blockType = MC.BlockTypes[ID]
 	if blockType.noCollide then return true end
 	
+	local AA, BB = self:GetRotatedAABB( self:OBBMins(), self:OBBMaxs() )
+	local BBSize = BB - AA
+	
 	local pos = self:GetPos()
-	local posCenter = pos + ( Vector( 0, 0, 0.5 ) - Vector( 0, 0, 1 - blockType.height ) / 2 ) * MC.cubeSize
-	local searchBox = Vector( 1, 1, blockType.height ) * MC.cubeSize - Vector( 3, 3, 3 )
+	local posCenter = pos + AA + BBSize * 0.5
+	
+	-- Search for other block entities
+	local searchBox = BBSize - Vector( 4, 4, 4 )
+	for k, v in pairs( ents.FindInBox( posCenter - searchBox / 2, posCenter + searchBox / 2 ) ) do
+		if IsValid( v ) and v ~= self and v:GetClass() == "minecraft_block" then
+			return false
+		end
+	end
 	
 	--cldebugoverlay.Box( self.Owner, posCenter, -searchBox / 2, searchBox / 2, 5, Color( 255, 255, 0, 127 ) )
 	
+	-- Search for player entities
+	local searchBox = BBSize - Vector( 2.6, 2.6, 2.6 )
 	for k, v in pairs( ents.FindInBox( posCenter - searchBox / 2, posCenter + searchBox / 2 ) ) do
-		if IsValid( v ) and v ~= self then
-			local class = v:GetClass()
-			if class == "minecraft_block" then
-				return false
-			elseif class == "player" and v:GetMoveType() ~= MOVETYPE_NOCLIP then
-				return false
-			end
+		if IsValid( v ) and v ~= self and v:GetClass() == "player" and v:GetMoveType() ~= MOVETYPE_NOCLIP then
+			return false
 		end
 	end
 	
@@ -59,22 +66,17 @@ function ENT:GetNearbyBlock( direction )
 	-- Deprecated direction numbers: 1 = top, 2 = bottom, 3 = front, 4 = back, 5 = left, 6 = right [when looking at a block in front of you and looking to the north!]
 	-- Translating old numbers to the new variables: 1 --> top, 2 --> bottom, 3 --> north, 4 --> south, 5 --> east, 6 --> west
 	
+	local AA, BB = self:GetRotatedAABB( self:OBBMins(), self:OBBMaxs() )
+	local BBSize = BB - AA
+	
 	local pos = self:GetPos()
-	local posCenter = pos + Vector( 0, 0, 0.5 ) * MC.cubeSize
+	local posCenter = pos + AA + BBSize * 0.5
 	local normal = MC.cubeFaceNormal[direction]
 	local normalAbs = Vector( math.abs( normal.x ), math.abs( normal.y ), math.abs( normal.z ) )
-	local searchBox = ( Vector( 1, 1, 1 ) - normalAbs * 0.5 ) * MC.cubeSize - Vector( 3, 3, 3 )
-	local neighbourPos = posCenter + normal * MC.cubeSize * 3 / 4
-	
-	-- Consider block height, and move top searchBox accordingly
-	if direction == MC.cubeFace.top then
-		neighbourPos = neighbourPos - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) )
-	end
-	-- also scale and move the searchBox for the sides accordingly
-	if direction == MC.cubeFace.west or direction == MC.cubeFace.east or direction == MC.cubeFace.north or direction == MC.cubeFace.south then
-		neighbourPos = neighbourPos - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) / 2 )
-		searchBox = searchBox - Vector( 0, 0, MC.cubeSize * ( 1 - MC.BlockTypes[self:GetBlockID()].height ) )
-	end
+	local normalAbsInverse = Vector( 1, 1, 1 ) - normalAbs
+	local searchBox = Vector( normalAbsInverse.x * BBSize.x, normalAbsInverse.y * BBSize.y, normalAbsInverse.z * BBSize.z ) + normalAbs * 0.5 * MC.cubeSize - Vector( 3, 3, 3 )
+	local offset = Vector( normal.x * BBSize.x, normal.y * BBSize.y, normal.z * BBSize.z )
+	local neighbourPos = posCenter + offset * 0.5 + MC.cubeSize * normal * 1 / 4
 	
 	--cldebugoverlay.EntityTextAtPosition( self.Owner, pos, 0, tostring(self) .. ", " .. self:GetBlockID(), 5 )
 	--cldebugoverlay.Box( self.Owner, neighbourPos, -searchBox/2, searchBox/2, 5, Color( 0, 255, 0, 10 ) )

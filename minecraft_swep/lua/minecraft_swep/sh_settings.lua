@@ -58,7 +58,7 @@ local matFire		= { name = "Fire",		baseHealth = -1,	soundTable = soundsCloth }
 -- Classes of blocks (Geometries like stairs, slabs) TODO: Rename to geom for geometry or something similar
 local classCube			= { name = "Cube" }
 local classCubeDir		= { name = "Cube with direction",	healthMul = 1.0,	autoRotate = true }
-local classSlab			= { name = "Slab",					healthMul = 0.5,											height = 0.5 }
+local classSlab			= { name = "Slab",					healthMul = 0.5 }
 local classStairs		= { name = "Stairs",				healthMul = 1.0,	autoRotate = true }
 local classLiquid		= { name = "Liquid",														noCollide = true }
 local classItemBlock	= { name = "Item",					healthMul = 0.2,	autoRotate = true,	noCollide = true }
@@ -90,7 +90,6 @@ local function addBlock( ID, model, options )
 	MC.BlockTypes[ID].contactDamage = options.contactDamage or options.class.contactDamage or options.material.contactDamage or 0
 	MC.BlockTypes[ID].ignitePlayer = options.ignitePlayer or options.class.ignitePlayer or options.material.ignitePlayer or false
 	MC.BlockTypes[ID].noCollide = options.noCollide or options.class.noCollide or options.material.noCollide or false
-	MC.BlockTypes[ID].height = options.height or options.class.height or options.material.height or 1.0							-- Height of the block, relative to MC.cubeSize
 end
 
 addBlock(   1, "models/mcmodelpack/blocks/dirt.mdl"						, { material = matGravel } )
@@ -173,7 +172,7 @@ addBlock(  77, "models/mcmodelpack/other_blocks/bigchest.mdl"			, { material = m
 addBlock(  78, "models/mcmodelpack/entities/bed.mdl"					, { material = matWood, autoRotate = true } )
 --addBlock(  79, "models/mcmodelpack/blocks/cloth-old.mdl"				, { material = matCloth, material = matCloth } )
 addBlock(  80, "models/mcmodelpack/blocks/cloth-new.mdl"				, { material = matCloth } )
-addBlock(  81, "models/mcmodelpack/other_blocks/cobweb.mdl"				, { material = matCloth } )
+--addBlock(  81, "models/mcmodelpack/other_blocks/cobweb.mdl"				, { material = matCloth } )
 addBlock(  82, "models/mcmodelpack/other_blocks/vines.mdl"				, { material = matOrganic, grasGrowsBelow = true } )
 
 --NEW
