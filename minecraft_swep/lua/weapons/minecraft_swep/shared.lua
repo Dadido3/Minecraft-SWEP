@@ -685,7 +685,7 @@ function SWEP:MCSecondaryAttack()
 	local distvec = tr.HitPos - self.Owner:GetShootPos()
 	local distance = distvec:Length()
 	
-	if ( isBlock == false and tr.HitWorld == false and ( GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 2 or GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 1) ) then
+	if isBlock == false and not tr.HitWorld and not tr.HitSky and ( GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 2 or GetCSConVarI( "minecraft_spawntype", self:GetOwner() ) == 1) then
 		
 		--check wether we are placing on top, bottom, or the four sides
 		local hitz = tr.HitPos.z
@@ -830,7 +830,6 @@ function SWEP:MCSecondaryAttack()
 		ent:SetKeyValue( "targetname", "mcblock" )
 		--]]
 		
-		
 		--finally, spawn the entity (mcblock checks whether we already spawned a WaterizedBlock before)
 		if (wasWaterized == 0) then
 			local theBlockID = blockID
@@ -845,14 +844,14 @@ function SWEP:MCSecondaryAttack()
 		end
 
 		--create the undo object
-		if (ent ~= nil) then
-		undo.Create("MC Block")
+		--[[if (ent ~= nil) then
+			undo.Create("MC Block")
 			undo.AddEntity( nocl )
 			undo.AddEntity( ent )
 			undo.SetPlayer( self.Owner )
 			undo.SetCustomUndoText( "Undone MC block" )
 			undo.Finish()
-		end
+		end--]]
 	end
 end
 
@@ -1061,8 +1060,8 @@ function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
 	
 		--check for already existing blocks (to avoid overlapping)
 		for k, v in pairs( ents.FindByClass( "minecraft_block" ) ) do
-			if ( v:IsValid() ) then
-				if ( v:GetPos() == ent:GetPos() and v ~= ent ) then
+			if IsValid( v ) then
+				if v:GetPos() == ent:GetPos() and v ~= ent then
 					--if ( GetCSConVarB( "minecraft_debug", ply ) ) then ply:ConCommand("echo [CheckPos()] blocks would overlap!") end
 					ent:Remove()
 					return nil

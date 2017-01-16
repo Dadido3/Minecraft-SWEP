@@ -37,7 +37,7 @@ local function TimerFunction()
 	local lag = ( os.clock() - Time ) - Frequency
 	
 	if lag > MC.physTimeout then
-		print("MC: Lag of " .. lag .. "s detected. Delete 10% of unstable blocks.")
+		--print("MC: Lag of " .. lag .. "s detected. Delete 10% of unstable blocks.")
 		FreezeOrDeleteBlocks()
 	end
 	
