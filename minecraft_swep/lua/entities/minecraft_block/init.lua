@@ -73,7 +73,7 @@ function ENT:RemoveSpecial()
 	
 	self:OnRemoveSpecial()
 	
-	if self.health ~= -1 and IsValid( self:GetPlayer() ) and GetCSConVarB( "minecraft_particles", self:GetPlayer() ) then
+	if self.health ~= -1 and ( not IsValid( self:GetPlayer() ) or GetCSConVarB( "minecraft_particles", self:GetPlayer() ) ) then
 		--create particle effect
 		local effect = EffectData();
 		local pos = self:GetPos();
@@ -184,7 +184,6 @@ end
 
 function ENT:OnRemoveSpecial( )
 	if self.spawned == false then return end
-	if not IsValid( self:GetPlayer() ) then return end
 	if self.simpleRemove == true then return end --to get rid of NULL entity bugs because self:GetPlayer = "Player [NULL]"
 	
 	local ID = self:GetBlockID();
@@ -222,9 +221,9 @@ function ENT:OnRemoveSpecial( )
 		end
 	end--]]
 	
-	if not IsValid( self:GetPlayer() ) or ( not GetCSConVarB( "minecraft_disablesounds", self.Owner ) and self.health <= 0 and self.health ~= -1) then
+	if self.health <= 0 and self.health ~= -1 and ( not IsValid( self:GetPlayer() ) or not GetCSConVarB( "minecraft_disablesounds", self.Owner ) ) then
 		local hasSound = false;
-	
+		
 		--grass
 		if (ID == 38 or ID == 70 or ID == 71 or ID == 39 or ID == 2 or ID == 82 or ID == 108 or ID == 123 or ID == 172 or ID == 173 or ID == 183  or ID == 190 or ID == 191 or ID == 192) then
 			local grass = { Sound("minecraft/grass1.wav"),Sound("minecraft/grass2.wav"),Sound("minecraft/grass3.wav"),Sound("minecraft/grass4.wav") }

@@ -4,6 +4,7 @@ MC.strings.reachedPlayerBlockLimit =	"You have reached your block limit!"
 MC.strings.reachedGlobalBlockLimit =	"You have reached the global block limit!"
 MC.strings.refuseBuildByTeam =			"You are too close to a zombie!"
 MC.strings.refuseUseToTeam =			"You try to operate the object, but you are not able! You dud!"
+MC.strings.onDeleteUnownedBlock =		"You can't delete the block of %s"
 
 -- #### Settings ####
 MC.healthMul = 1.0						-- Global health multiplier for all blocks

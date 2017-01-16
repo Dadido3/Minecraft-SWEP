@@ -596,7 +596,7 @@ end
 function SWEP:MCSecondaryAttack()
 	-- Check if the block is allowed
 	if SERVER then
-		if !isBlockAllowed(  GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
+		if not isBlockAllowed(  GetCSConVarI( "minecraft_blocktype", self:GetOwner() ) ) then
 			return
 		end
 	end
@@ -907,6 +907,8 @@ function SWEP:MCPrimaryAttack()
 				end
 				self:AttackAnim()
 				self:GetOwner():ConCommand("cl_minecraft_blockcount "..(GetCSConVarI( "cl_minecraft_blockcount", self:GetOwner() ) - 1))
+			else
+				self:GetOwner():PrintMessage( HUD_PRINTCENTER, string.format( MC.strings.onDeleteUnownedBlock, self:GetOwner():GetName() ) )
 			end
 		elseif MC.onlyDeleteMinecraftBlocks == false then
 			--any entity
