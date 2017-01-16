@@ -26,7 +26,7 @@ function ENT:Initialize()
 	--self:CallOnRemove("blockremove",OnRemove)
     --Basic stuff
     self:PhysicsInit( SOLID_VPHYSICS )
-	self:SetMoveType(MOVETYPE_VPHYSICS)
+	self:SetMoveType( MOVETYPE_VPHYSICS )
 	self:SetSolid( SOLID_VPHYSICS )   
 	-- Wake the physics object up
 	local phys = self.Entity:GetPhysicsObject()
@@ -44,13 +44,20 @@ end
 --***************************************
 
 function ENT:OnTakeDamage( dmginfo )
+	local attacker = dmginfo:GetAttacker()
+	
 	-- React physically when shot/getting blown
 	self.Entity:TakePhysicsDamage( dmginfo )
 	
-	if (self.health <= 0) then return end;
-	self.health = self.health - dmginfo:GetDamage();
-	if (self.health <= 0) then
-		self:RemoveSpecial();
+	self.health = self.health - dmginfo:GetDamage()
+	if self.health <= 0 then
+		self.health = 0
+		self:RemoveSpecial()
+	end
+	
+	-- ZS Specific: Show damage floater
+	if gmod.GetGamemode().DamageFloater then
+		gmod.GetGamemode():DamageFloater( attacker, self, dmginfo)
 	end
 end
 
@@ -66,7 +73,7 @@ function ENT:RemoveSpecial()
 	
 	self:OnRemoveSpecial()
 	
-	if ( self.health ~= -1 and GetCSConVarB( "minecraft_particles", self:GetPlayer() ) ) then
+	if self.health ~= -1 and IsValid( self:GetPlayer() ) and GetCSConVarB( "minecraft_particles", self:GetPlayer() ) then
 		--create particle effect
 		local effect = EffectData();
 		local pos = self:GetPos();
@@ -97,7 +104,7 @@ function ENT:OnSpawn( ID, hitEntity )
 	
 	self.stable = true
 	
-	if ( !GetCSConVarB( "minecraft_disablesounds", self.Owner ) ) then
+	if not GetCSConVarB( "minecraft_disablesounds", self.Owner ) then
 		self:EmitSound( table.Random( blockType.material.soundTable ), 510, math.random(60,100))
 	end
 	
@@ -182,9 +189,9 @@ function ENT:OnRemoveSpecial( )
 	
 	local ID = self:GetBlockID();
 	--if (GetConVar("minecraft_debug"):GetBool()) then print("block with ID = " .. tostring(ID) .. " removed!") end
-	 
+	
 	self.stable = false
-	 
+	
 	--test: spawn a water block if an ice block breaks
 	if (ID == 40) then
 		if (self.health <= 0 and self.health ~= -1 and self.health ~= -2) then --if we were killed by taking damage
