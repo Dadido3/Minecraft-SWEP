@@ -906,9 +906,11 @@ function SWEP:MCPrimaryAttack()
 					target:Remove()
 				end
 				self:AttackAnim()
-				self:GetOwner():ConCommand("cl_minecraft_blockcount "..(GetCSConVarI( "cl_minecraft_blockcount", self:GetOwner() ) - 1))
+				if IsValid( target:GetPlayer() ) then
+					target:GetPlayer():ConCommand("cl_minecraft_blockcount "..(GetCSConVarI( "cl_minecraft_blockcount", target:GetPlayer() ) - 1))
+				end
 			else
-				self:GetOwner():PrintMessage( HUD_PRINTCENTER, string.format( MC.strings.onDeleteUnownedBlock, self:GetOwner():GetName() ) )
+				self:GetOwner():PrintMessage( HUD_PRINTCENTER, string.format( MC.strings.onDeleteUnownedBlock, target:GetPlayer():GetName() ) )
 			end
 		elseif MC.onlyDeleteMinecraftBlocks == false then
 			--any entity
