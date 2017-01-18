@@ -897,8 +897,8 @@ function SWEP:MCPrimaryAttack()
 	-- Deletion
 	if trace.HitNonWorld then -- if you hit an entity
 		if targetClass == "minecraft_block" or targetClass == "mc_tnt" or targetClass == "mc_cake" or targetClass == "minecraft_block_waterized" then
-			target.health = -2 --change -2 to -1 to disable particle effects and sounds on block destroy
 			if not IsValid( target:GetPlayer() ) or target:GetPlayer() == self:GetOwner() then
+				target.health = -2 --change -2 to -1 to disable particle effects and sounds on block destroy
 				--this is a minecraft block and we own it
 				if targetClass == "minecraft_block" then
 					target:RemoveSpecial()
