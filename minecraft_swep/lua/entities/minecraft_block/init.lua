@@ -104,7 +104,7 @@ function ENT:OnSpawn( ID, hitEntity )
 	
 	self.stable = true
 	
-	if not GetCSConVarB( "minecraft_disablesounds", self.Owner ) then
+	if IsValid( self.Owner ) and not GetCSConVarB( "minecraft_disablesounds", self.Owner ) then
 		self:EmitSound( table.Random( blockType.material.soundTable ), 510, math.random(60,100))
 	end
 	

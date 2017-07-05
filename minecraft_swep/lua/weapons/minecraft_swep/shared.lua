@@ -1047,7 +1047,9 @@ function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
 	
 	--set attributes
 	ent:SetModel( MC.BlockTypes[blocktype].model )
-	ent:SetSkin( GetCSConVarI( "minecraft_blockskin", ply ) )
+	if IsValid( ply ) then
+		ent:SetSkin( GetCSConVarI( "minecraft_blockskin", ply ) )
+	end
 	ent:SetPos( pos )
 	--ent:PhysicsInitBox( SpawnPos + Vector( -18.25, -18.25, -18.25 ), SpawnPos + Vector(  18.25,  18.25,  18.25 ) )
 	ent:SetKeyValue( "DisableShadows", "1" )
@@ -1055,9 +1057,11 @@ function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
 	
 	ent:SetBlockID( blocktype )
 	ent:SetRotation( rotation )
-	ent:BlockInit( blocktype, hitEntity )
+	if hitEntity ~= nil then
+		ent:BlockInit( blocktype, hitEntity )
+	end
 	
-	if ( !GetCSConVarB( "minecraft_force_block_spawn", ply ) ) then
+	if IsValid( ply ) and !GetCSConVarB( "minecraft_force_block_spawn", ply ) then
 		local check = ent:CheckPos( blocktype )
 		if (!check) then 
 			--if ( GetCSConVarB( "minecraft_debug", ply ) ) then ply:ConCommand("echo [CheckPos()] blocks would overlap!") end
@@ -1078,7 +1082,7 @@ function SpawnMinecraftBlock( ply, hitEntity, blocktype, pos, rotation )
 	end
 	
 	--force block rotation
-	if ( GetCSConVarB( "minecraft_blockrotation_force", ply ) ) then
+	if IsValid( ply ) and GetCSConVarB( "minecraft_blockrotation_force", ply ) then
 		ent:SetAngles( Angle( 0, GetCSConVarI( "minecraft_blockrotation", ply ), 0 ))
 	end
 	

@@ -10,6 +10,9 @@ AddCSLuaFile( "sh_init.lua" )
 AddCSLuaFile( "sh_settings.lua" )
 AddCSLuaFile( "sh_waterizer.lua" )
 
+include( "sv_save_load.lua" )
+include( "sv_other.lua" )
+
 -- #### Physic lag detection and countermeasure ####
 
 local function FreezeOrDeleteBlocks()
